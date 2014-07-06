@@ -62,7 +62,7 @@ public class PostListActivity extends ListActivity {
 
         if (isNetworkAvailable()) {
             mProgressBar.setVisibility(View.VISIBLE);
-            GetBlogPostsTask getBlogPostsTask = new GetBlogPostsTask();
+            GetPostsTask getBlogPostsTask = new GetPostsTask();
             getBlogPostsTask.execute();
         } else {
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
@@ -85,6 +85,12 @@ public class PostListActivity extends ListActivity {
         }
     }
 
+    /**
+     * Instantiate a connectivity manager and check if there is a network interface
+     * and if it's available.
+     *
+     * @return - true if the network is available
+     */
     public boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
@@ -145,6 +151,9 @@ public class PostListActivity extends ListActivity {
         }
     }
 
+    /**
+     * Shows an notification in the screen for an error related to non existing items.
+     */
     private void updateDisplayForError() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.error_title));
@@ -157,11 +166,19 @@ public class PostListActivity extends ListActivity {
         emptyTextView.setText(getString(R.string.no_items));
     }
 
+    /**
+     * Local method for logging an exception.
+     *
+     * @param e - exception to log
+     */
     private void logException(Exception e) {
         Log.e(TAG, "Exception caught!", e);
     }
 
-    private class GetBlogPostsTask extends AsyncTask<Object, Void, JSONObject> {
+    /**
+     * Asynctask for making a call to the API.
+     */
+    private class GetPostsTask extends AsyncTask<Object, Void, JSONObject> {
 
         @Override
         protected JSONObject doInBackground(Object[] params) {
