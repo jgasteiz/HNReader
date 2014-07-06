@@ -1,0 +1,10 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:hnreader="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_action_share"
+        hnreader:showAsAction="always"
+        android:title="@string/action_share">
+    </item>
+</menu>
