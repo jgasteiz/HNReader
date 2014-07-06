@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/item_index"
+            android:textSize="16sp"
+            android:textColor="#666d74"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"/>
+
+        <LinearLayout
+            android:paddingLeft="10dp"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/item_title"
+                android:textSize="16sp"
+                android:textColor="@color/abc_search_url_text_pressed"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="This is some hacker news cool title" />
+
+            <TextView
+                android:id="@+id/item_url"
+                android:textColor="#003d80"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="journal.stuffwithstuff.com" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/item_points"
+                    android:textSize="12sp"
+                    android:textColor="#666d74"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="32 points" />
+
+                <TextView
+                    android:id="@+id/item_author"
+                    android:textSize="12sp"
+                    android:textColor="#666d74"
+                    android:layout_marginLeft="10sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="by someone" />
+
+                <TextView
+                    android:id="@+id/item_posted_ago"
+                    android:textSize="12sp"
+                    android:textColor="#666d74"
+                    android:layout_marginLeft="10sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 hr ago" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

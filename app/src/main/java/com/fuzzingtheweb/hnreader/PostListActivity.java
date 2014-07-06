@@ -44,8 +44,10 @@ public class PostListActivity extends ListActivity {
     protected ProgressBar mProgressBar;
     public static final String TAG = PostListActivity.class.getSimpleName();
 
+    private final String KEY_INDEX = "index";
     private final String KEY_TITLE = "title";
-    private final String KEY_SUBTITLE = "Subtitle";
+    private final String KEY_URL = "url";
+    private final String KEY_POINTS = "points";
     private final String KEY_AUTHOR = "postedBy";
     private final String KEY_POSTED_AGO = "postedAgo";
 
@@ -89,37 +91,52 @@ public class PostListActivity extends ListActivity {
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    private void handleBlogResponse() {
+    /**
+     * Handles API response parsing the JSON and loading the list of posts in the main layout.
+     */
+    private void handleAPIResponse() {
         mProgressBar.setVisibility(View.GONE);
 
         if (mPostData == null) {
             updateDisplayForError();
         } else {
+
+            JSONArray jsonPosts;
+            ArrayList<HashMap<String, String>> blogPosts;
+            JSONObject post;
+            HashMap<String, String> blogPost;
+            String title, url, points, author, postedAgo;
+
             try {
-                JSONArray jsonPosts = mPostData.getJSONArray("items");
-                ArrayList<HashMap<String, String>> blogPosts =
-                        new ArrayList<HashMap<String, String>>();
+                jsonPosts = mPostData.getJSONArray("items");
+                blogPosts = new ArrayList<HashMap<String, String>>();
                 for (int i = 0; i < jsonPosts.length(); i++) {
-                    JSONObject post = jsonPosts.getJSONObject(i);
-                    String title = post.getString(KEY_TITLE);
-                    title = Html.fromHtml(title).toString();
-                    String author = post.getString(KEY_AUTHOR);
-                    String postedAgo = post.getString(KEY_POSTED_AGO);
-                    author = Html.fromHtml(author).toString();
+                    post = jsonPosts.getJSONObject(i);
 
-                    String subtitle = postedAgo + " - by " + author;
+                    title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
+                    url = post.getString(KEY_URL);
+                    points = post.getString(KEY_POINTS);
+                    author = post.getString(KEY_AUTHOR);
+                    postedAgo = post.getString(KEY_POSTED_AGO);
 
-                    HashMap<String, String> blogPost = new HashMap<String, String>();
+                    blogPost = new HashMap<String, String>();
+                    blogPost.put(KEY_INDEX, Integer.toString(i + 1));
                     blogPost.put(KEY_TITLE, title);
-                    blogPost.put(KEY_SUBTITLE, subtitle);
+                    blogPost.put(KEY_URL, url);
+                    blogPost.put(KEY_POINTS, points);
+                    blogPost.put(KEY_AUTHOR, author);
+                    blogPost.put(KEY_POSTED_AGO, postedAgo);
 
                     blogPosts.add(blogPost);
                 }
 
-                String[] keys = { KEY_TITLE, KEY_SUBTITLE };
-                int[] ids = { android.R.id.text1, android.R.id.text2 };
+                String[] keys = { KEY_INDEX, KEY_TITLE, KEY_URL, KEY_POINTS,
+                        KEY_AUTHOR, KEY_POSTED_AGO };
+                int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
+                        R.id.item_points, R.id.item_author, R.id.item_posted_ago };
+
                 SimpleAdapter adapter = new SimpleAdapter(this, blogPosts,
-                        android.R.layout.simple_list_item_2, keys, ids);
+                        R.layout.activity_post_item, keys, ids);
                 setListAdapter(adapter);
 
             } catch (JSONException e) {
@@ -197,8 +214,7 @@ public class PostListActivity extends ListActivity {
         @Override
         protected void onPostExecute(JSONObject result) {
             mPostData = result;
-            handleBlogResponse();
-
+            handleAPIResponse();
         }
     }
 
