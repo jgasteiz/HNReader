@@ -4,12 +4,14 @@
     <string name="app_name">HNReader</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="error_title">Ooops, sorry.</string>
-    <string name="error_message">There was an error getting data from hn api blog.</string>
+    <string name="error_title">Ooops, sorry</string>
+    <string name="error_message">There was an error getting data from the HN api.</string>
     <string name="no_items">There are no items to show</string>
 
     <string name="title_activity_web_view">HN Post</string>
     <string name="action_share_title">How do you want to share this?</string>
     <string name="action_share">Share</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="open_browser">Open in browser</string>
 
 </resources>

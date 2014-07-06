@@ -11,7 +11,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -34,14 +37,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class PostListActivity extends ListActivity {
 
+    private static final String Y_COMBINATOR_URL = "news.ycombinator.com";
+    private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/item?id=";
     protected JSONObject mPostData;
     protected ProgressBar mProgressBar;
+    protected Button mRefreshButton;
     public static final String TAG = PostListActivity.class.getSimpleName();
 
     private final String KEY_INDEX = "index";
@@ -59,14 +67,16 @@ public class PostListActivity extends ListActivity {
         setContentView(R.layout.activity_post_list);
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+        mRefreshButton = (Button) findViewById(R.id.refresh_button);
 
-        if (isNetworkAvailable()) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            GetPostsTask getBlogPostsTask = new GetPostsTask();
-            getBlogPostsTask.execute();
-        } else {
-            Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
-        }
+        mRefreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshData();
+            }
+        });
+
+        refreshData();
     }
 
     @Override
@@ -75,13 +85,54 @@ public class PostListActivity extends ListActivity {
         try {
             JSONArray jsonPosts = mPostData.getJSONArray("items");
             JSONObject jsonPost = jsonPosts.getJSONObject(position);
-            String blogUrl = jsonPost.getString("url");
+            String postUrl = jsonPost.getString("url");
+
+            // Some urls are ycombinator internal urls.
+            if (postUrl.startsWith("/")) {
+                int postId = jsonPost.getInt("id");
+                postUrl = HTTPS_Y_COMBINATOR_URL + postId;
+            }
 
             Intent intent = new Intent(this, WebViewActivity.class);
-            intent.setData(Uri.parse(blogUrl));
+            intent.setData(Uri.parse(postUrl));
             startActivity(intent);
         } catch (JSONException e) {
             logException(e);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.post_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.action_refresh) {
+            refreshData();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * If the network is available, refresh the posts.
+     */
+    private void refreshData() {
+        if (isNetworkAvailable()) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            GetPostsTask getBlogPostsTask = new GetPostsTask();
+            getBlogPostsTask.execute();
+        } else {
+            mProgressBar.setVisibility(View.GONE);
+            Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -121,6 +172,7 @@ public class PostListActivity extends ListActivity {
 
                     title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
                     url = post.getString(KEY_URL);
+                    url = formatUrl(url);
                     points = post.getString(KEY_POINTS);
                     author = post.getString(KEY_AUTHOR);
                     postedAgo = post.getString(KEY_POSTED_AGO);
@@ -149,6 +201,20 @@ public class PostListActivity extends ListActivity {
                 logException(e);
             }
         }
+    }
+
+    private String formatUrl(String url) {
+        String formattedUrl = url;
+        try {
+            URI uri = new URI(formattedUrl);
+            formattedUrl = uri.getHost();
+            if (formattedUrl == null) {
+                formattedUrl = Y_COMBINATOR_URL;
+            }
+        } catch (URISyntaxException e) {
+            logException(e);
+        }
+        return formattedUrl;
     }
 
     /**

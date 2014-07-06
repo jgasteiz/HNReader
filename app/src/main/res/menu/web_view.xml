@@ -7,4 +7,11 @@
         hnreader:showAsAction="always"
         android:title="@string/action_share">
     </item>
+
+    <item
+        android:id="@+id/open_browser"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="100"
+        android:title="@string/open_browser">
+    </item>
 </menu>

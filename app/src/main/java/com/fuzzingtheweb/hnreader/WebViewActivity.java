@@ -3,11 +3,11 @@ package com.fuzzingtheweb.hnreader;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebViewActivity extends ActionBarActivity {
 
@@ -19,8 +19,7 @@ public class WebViewActivity extends ActionBarActivity {
         setContentView(R.layout.activity_web_view);
 
         // Add the `back` icon to the action bar
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Create an intent for displaying the url in a webView
         Intent intent = getIntent();
@@ -29,6 +28,7 @@ public class WebViewActivity extends ActionBarActivity {
 
         // Create the webView and load the url content
         WebView webView = (WebView) findViewById(R.id.webView);
+        webView.setWebViewClient(new WebViewClient());
         webView.loadUrl(mUrl);
     }
 
@@ -48,9 +48,17 @@ public class WebViewActivity extends ActionBarActivity {
 
         if (itemId == R.id.action_share) {
             sharePost();
+        } else if (itemId == R.id.open_browser) {
+            openBrowser();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openBrowser() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+        browserIntent.setData(Uri.parse(mUrl));
+        startActivity(browserIntent);
     }
 
     /**
