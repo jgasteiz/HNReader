@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +47,8 @@ import java.util.HashMap;
 
 public class PostListActivity extends ListActivity {
 
+    private PostDBAdapter mDbHelper;
+
     private static final String Y_COMBINATOR_URL = "news.ycombinator.com";
     private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/item?id=";
     protected JSONObject mPostData;
@@ -66,6 +70,9 @@ public class PostListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_list);
 
+        mDbHelper = new PostDBAdapter(this);
+        mDbHelper.open();
+
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
         mRefreshButton = (Button) findViewById(R.id.refresh_button);
 
@@ -76,29 +83,43 @@ public class PostListActivity extends ListActivity {
             }
         });
 
-        refreshData();
+//        refreshData();
+        fillData();
+    }
+
+    private void fillData() {
+        // Get all of the rows from the database and create the item list
+        Cursor postsCursor = mDbHelper.fetchAllPosts();
+        startManagingCursor(postsCursor);
+
+        String[] keys = { "_id", KEY_TITLE, KEY_URL, KEY_POINTS,
+                KEY_AUTHOR, KEY_POSTED_AGO };
+        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
+                R.id.item_points, R.id.item_author, R.id.item_posted_ago };
+
+        // Now create a simple cursor adapter and set it to display
+        SimpleCursorAdapter posts =
+                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
+        setListAdapter(posts);
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        try {
-            JSONArray jsonPosts = mPostData.getJSONArray("items");
-            JSONObject jsonPost = jsonPosts.getJSONObject(position);
-            String postUrl = jsonPost.getString("url");
+        Cursor cursor = mDbHelper.fetchPost(id);
+        int rowIndex = cursor.getColumnIndex("url");
+        String postUrl = cursor.getString(rowIndex);
 
-            // Some urls are ycombinator internal urls.
-            if (postUrl.startsWith("/")) {
-                int postId = jsonPost.getInt("id");
-                postUrl = HTTPS_Y_COMBINATOR_URL + postId;
-            }
+        // Some urls are ycombinator internal urls.
+        // Need new attribute for hn posts - postId
+//        if (postUrl.startsWith("/")) {
+//            int postId = jsonPost.getInt("id");
+//            postUrl = HTTPS_Y_COMBINATOR_URL + postId;
+//        }
 
-            Intent intent = new Intent(this, WebViewActivity.class);
-            intent.setData(Uri.parse(postUrl));
-            startActivity(intent);
-        } catch (JSONException e) {
-            logException(e);
-        }
+        Intent intent = new Intent(this, WebViewActivity.class);
+        intent.setData(Uri.parse(postUrl));
+        startActivity(intent);
     }
 
     @Override
@@ -120,6 +141,15 @@ public class PostListActivity extends ListActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void savePost(String title, String url, String points,
+                          String author, String postedAgo) {
+        long id = mDbHelper.createPost(title, url, points, author, postedAgo);
+    }
+
+    private boolean deleteAllPosts() {
+        return mDbHelper.deleteAllPosts();
     }
 
     /**
@@ -158,11 +188,13 @@ public class PostListActivity extends ListActivity {
             updateDisplayForError();
         } else {
 
+            deleteAllPosts();
+
             JSONArray jsonPosts;
             ArrayList<HashMap<String, String>> blogPosts;
             JSONObject post;
             HashMap<String, String> blogPost;
-            String title, url, points, author, postedAgo;
+            String index, title, url, points, author, postedAgo;
 
             try {
                 jsonPosts = mPostData.getJSONArray("items");
@@ -170,22 +202,24 @@ public class PostListActivity extends ListActivity {
                 for (int i = 0; i < jsonPosts.length(); i++) {
                     post = jsonPosts.getJSONObject(i);
 
+                    index = Integer.toString(i + 1);
                     title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
                     url = post.getString(KEY_URL);
-                    url = formatUrl(url);
                     points = post.getString(KEY_POINTS);
                     author = post.getString(KEY_AUTHOR);
                     postedAgo = post.getString(KEY_POSTED_AGO);
 
                     blogPost = new HashMap<String, String>();
-                    blogPost.put(KEY_INDEX, Integer.toString(i + 1));
+                    blogPost.put(KEY_INDEX, index);
                     blogPost.put(KEY_TITLE, title);
-                    blogPost.put(KEY_URL, url);
+                    blogPost.put(KEY_URL, formatUrl(url));
                     blogPost.put(KEY_POINTS, points);
                     blogPost.put(KEY_AUTHOR, author);
                     blogPost.put(KEY_POSTED_AGO, postedAgo);
 
                     blogPosts.add(blogPost);
+
+                    savePost(title, url, points, author, postedAgo);
                 }
 
                 String[] keys = { KEY_INDEX, KEY_TITLE, KEY_URL, KEY_POINTS,
