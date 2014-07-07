@@ -14,9 +14,11 @@ import android.util.Log;
 public class PostDBAdapter {
 
     public static final String KEY_ROWID = "_id";
-    public final String KEY_INDEX = "index";
+    public final String KEY_INDEX = "postIndex";
+    public final String KEY_POST_ID = "postId";
     public final String KEY_TITLE = "title";
     public final String KEY_URL = "url";
+    public final String KEY_PRETTY_URL = "prettyUrl";
     public final String KEY_POINTS = "points";
     public final String KEY_AUTHOR = "postedBy";
     public final String KEY_POSTED_AGO = "postedAgo";
@@ -30,9 +32,9 @@ public class PostDBAdapter {
      */
     private static final String DATABASE_CREATE =
             "create table posts (_id integer primary key autoincrement, " +
-                    "title text not null, url text not null, " +
-                    "points text not null, postedBy text not null, " +
-                    "postedAgo text not null);";
+                    "postIndex text not null, postId text not null, title text not null, " +
+                    "url text not null, prettyUrl text not null, points text not null, " +
+                    "postedBy text not null, postedAgo text not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
@@ -92,19 +94,23 @@ public class PostDBAdapter {
     /**
      * Create a new post using the given parameters.
      *
-//     * @param index of the post
+     * @param index of the post
      * @param title of the post
      * @param url of the post
+     * @param prettyUrl for showing in the post list
      * @param points the post was given in HN
      * @param author of the post in HN
      * @param postedAgo relative time to when it was posted in HN
      * @return true if created, false otherwise
      */
-    public long createPost(String title, String url, String points, String author, String postedAgo) {
+    public long createPost(String index, String postId, String title, String url,
+                           String prettyUrl, String points, String author, String postedAgo) {
         ContentValues initialValues = new ContentValues();
-//        initialValues.put(KEY_INDEX, index);
+        initialValues.put(KEY_INDEX, index);
+        initialValues.put(KEY_POST_ID, postId);
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_URL, url);
+        initialValues.put(KEY_PRETTY_URL, prettyUrl);
         initialValues.put(KEY_POINTS, points);
         initialValues.put(KEY_AUTHOR, author);
         initialValues.put(KEY_POSTED_AGO, postedAgo);
@@ -137,9 +143,10 @@ public class PostDBAdapter {
      * @return Cursor over all posts
      */
     public Cursor fetchAllPosts() {
-
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_TITLE, KEY_URL,
-                KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO}, null, null, null, null, null);
+        return mDb.query(DATABASE_TABLE, new String[] {
+                KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
+                KEY_PRETTY_URL, KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO},
+                null, null, null, null, null);
     }
 
     /**
@@ -152,8 +159,9 @@ public class PostDBAdapter {
     public Cursor fetchPost(long rowId) throws SQLException {
 
         Cursor mCursor =
-                mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                        KEY_TITLE, KEY_URL, KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO},
+                mDb.query(true, DATABASE_TABLE, new String[] {
+                        KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
+                        KEY_PRETTY_URL, KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO},
                         KEY_ROWID + "=" + rowId, null,
                         null, null, null, null);
         if (mCursor != null) {

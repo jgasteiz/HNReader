@@ -18,7 +18,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,13 +40,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class PostListActivity extends ListActivity {
 
     private PostDBAdapter mDbHelper;
+
+    private ListView mListView;
+    private int mScrollPosition;
 
     private static final String Y_COMBINATOR_URL = "news.ycombinator.com";
     private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/item?id=";
@@ -56,9 +56,11 @@ public class PostListActivity extends ListActivity {
     protected Button mRefreshButton;
     public static final String TAG = PostListActivity.class.getSimpleName();
 
-    private final String KEY_INDEX = "index";
+    private final String KEY_INDEX = "postIndex";
+    private final String KEY_POST_ID = "id";
     private final String KEY_TITLE = "title";
     private final String KEY_URL = "url";
+    private final String KEY_PRETTY_URL = "prettyUrl";
     private final String KEY_POINTS = "points";
     private final String KEY_AUTHOR = "postedBy";
     private final String KEY_POSTED_AGO = "postedAgo";
@@ -69,6 +71,14 @@ public class PostListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_list);
+
+        if (savedInstanceState != null) {
+            mScrollPosition = savedInstanceState.getInt("mScrollPosition");
+        } else {
+            mScrollPosition = 0;
+        }
+
+        mListView = (ListView) findViewById(android.R.id.list);
 
         mDbHelper = new PostDBAdapter(this);
         mDbHelper.open();
@@ -83,16 +93,16 @@ public class PostListActivity extends ListActivity {
             }
         });
 
-//        refreshData();
-        fillData();
+        populateListView();
+        restoreScroll(savedInstanceState);
     }
 
-    private void fillData() {
+    private void populateListView() {
         // Get all of the rows from the database and create the item list
         Cursor postsCursor = mDbHelper.fetchAllPosts();
         startManagingCursor(postsCursor);
 
-        String[] keys = { "_id", KEY_TITLE, KEY_URL, KEY_POINTS,
+        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_POINTS,
                 KEY_AUTHOR, KEY_POSTED_AGO };
         int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
                 R.id.item_points, R.id.item_author, R.id.item_posted_ago };
@@ -101,21 +111,31 @@ public class PostListActivity extends ListActivity {
         SimpleCursorAdapter posts =
                 new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
         setListAdapter(posts);
+
+        mListView.setSelection(mScrollPosition);
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
+
+        log("Item clicked");
+        log("Position: " + position);
+        log("Id: " + id);
+
         Cursor cursor = mDbHelper.fetchPost(id);
-        int rowIndex = cursor.getColumnIndex("url");
-        String postUrl = cursor.getString(rowIndex);
+        int urlColIndex = cursor.getColumnIndex("url");
+        String postUrl = cursor.getString(urlColIndex);
 
         // Some urls are ycombinator internal urls.
         // Need new attribute for hn posts - postId
-//        if (postUrl.startsWith("/")) {
-//            int postId = jsonPost.getInt("id");
-//            postUrl = HTTPS_Y_COMBINATOR_URL + postId;
-//        }
+        if (postUrl.startsWith("/")) {
+            int postIdColIndex = cursor.getColumnIndex("postId");
+            String postId = cursor.getString(postIdColIndex);
+            postUrl = HTTPS_Y_COMBINATOR_URL + postId;
+        }
+
+        mScrollPosition = mListView.getFirstVisiblePosition();
 
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.setData(Uri.parse(postUrl));
@@ -143,9 +163,33 @@ public class PostListActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void savePost(String title, String url, String points,
-                          String author, String postedAgo) {
-        long id = mDbHelper.createPost(title, url, points, author, postedAgo);
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("mScrollPosition", mScrollPosition);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restoreScroll(savedInstanceState);
+    }
+
+    /**
+     * Restore the scroll position on screen
+     *
+     * @param savedInstanceState saved state of the activity
+     */
+    private void restoreScroll(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("mScrollPosition"))
+        {
+            mScrollPosition = savedInstanceState.getInt("mScrollPosition");
+        }
+    }
+
+    private void savePost(String index, String postId, String title, String url,
+                          String prettyUrl, String points, String author, String postedAgo) {
+        long id = mDbHelper.createPost(index, postId, title, url, prettyUrl, points, author, postedAgo);
     }
 
     private boolean deleteAllPosts() {
@@ -191,50 +235,32 @@ public class PostListActivity extends ListActivity {
             deleteAllPosts();
 
             JSONArray jsonPosts;
-            ArrayList<HashMap<String, String>> blogPosts;
             JSONObject post;
-            HashMap<String, String> blogPost;
-            String index, title, url, points, author, postedAgo;
+            String index, postId, title, url, prettyUrl, points, author, postedAgo;
 
             try {
                 jsonPosts = mPostData.getJSONArray("items");
-                blogPosts = new ArrayList<HashMap<String, String>>();
                 for (int i = 0; i < jsonPosts.length(); i++) {
                     post = jsonPosts.getJSONObject(i);
 
                     index = Integer.toString(i + 1);
+                    postId = post.getString(KEY_POST_ID);
                     title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
                     url = post.getString(KEY_URL);
+                    prettyUrl = formatUrl(url);
                     points = post.getString(KEY_POINTS);
                     author = post.getString(KEY_AUTHOR);
                     postedAgo = post.getString(KEY_POSTED_AGO);
 
-                    blogPost = new HashMap<String, String>();
-                    blogPost.put(KEY_INDEX, index);
-                    blogPost.put(KEY_TITLE, title);
-                    blogPost.put(KEY_URL, formatUrl(url));
-                    blogPost.put(KEY_POINTS, points);
-                    blogPost.put(KEY_AUTHOR, author);
-                    blogPost.put(KEY_POSTED_AGO, postedAgo);
-
-                    blogPosts.add(blogPost);
-
-                    savePost(title, url, points, author, postedAgo);
+                    savePost(index, postId, title, url, prettyUrl, points, author, postedAgo);
                 }
-
-                String[] keys = { KEY_INDEX, KEY_TITLE, KEY_URL, KEY_POINTS,
-                        KEY_AUTHOR, KEY_POSTED_AGO };
-                int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                        R.id.item_points, R.id.item_author, R.id.item_posted_ago };
-
-                SimpleAdapter adapter = new SimpleAdapter(this, blogPosts,
-                        R.layout.activity_post_item, keys, ids);
-                setListAdapter(adapter);
 
             } catch (JSONException e) {
                 logException(e);
             }
         }
+
+        populateListView();
     }
 
     private String formatUrl(String url) {
@@ -269,10 +295,18 @@ public class PostListActivity extends ListActivity {
     /**
      * Local method for logging an exception.
      *
-     * @param e - exception to log
+     * @param e exception to log
      */
     private void logException(Exception e) {
         Log.e(TAG, "Exception caught!", e);
+    }
+
+    /**
+     * Local method for debug logging
+     * @param message string to log
+     */
+    private void log(String message) {
+        Log.d(TAG, message);
     }
 
     /**
