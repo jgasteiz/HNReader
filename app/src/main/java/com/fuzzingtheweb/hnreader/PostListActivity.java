@@ -50,22 +50,24 @@ public class PostListActivity extends ListActivity {
     private int mScrollPosition;
 
     private static final String Y_COMBINATOR_URL = "news.ycombinator.com";
-    private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/item?id=";
+    private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/";
     protected JSONObject mPostData;
     protected ProgressBar mProgressBar;
     protected Button mRefreshButton;
     public static final String TAG = PostListActivity.class.getSimpleName();
 
     private final String KEY_INDEX = "postIndex";
+    private final String KEY_POST_INDEX = "index";
     private final String KEY_POST_ID = "id";
     private final String KEY_TITLE = "title";
     private final String KEY_URL = "url";
     private final String KEY_PRETTY_URL = "prettyUrl";
-    private final String KEY_POINTS = "points";
-    private final String KEY_AUTHOR = "postedBy";
+    private final String KEY_SCORE = "score";
+    private final String KEY_AUTHOR = "author";
     private final String KEY_POSTED_AGO = "postedAgo";
+    private static final String KEY_NUM_COMMENTS = "comments";
 
-    private static final String API_URL = "http://api.ihackernews.com/page";
+    private static final String API_URL = "http://api-hnreader.rhcloud.com/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,10 +104,10 @@ public class PostListActivity extends ListActivity {
         Cursor postsCursor = mDbHelper.fetchAllPosts();
         startManagingCursor(postsCursor);
 
-        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_POINTS,
-                KEY_AUTHOR, KEY_POSTED_AGO };
+        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
+                KEY_AUTHOR, KEY_NUM_COMMENTS };
         int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_points, R.id.item_author, R.id.item_posted_ago };
+                R.id.item_score, R.id.item_author, R.id.item_num_comments };
 
         // Now create a simple cursor adapter and set it to display
         SimpleCursorAdapter posts =
@@ -129,10 +131,8 @@ public class PostListActivity extends ListActivity {
 
         // Some urls are ycombinator internal urls.
         // Need new attribute for hn posts - postId
-        if (postUrl.startsWith("/")) {
-            int postIdColIndex = cursor.getColumnIndex("postId");
-            String postId = cursor.getString(postIdColIndex);
-            postUrl = HTTPS_Y_COMBINATOR_URL + postId;
+        if (postUrl.startsWith("item")) {
+            postUrl = HTTPS_Y_COMBINATOR_URL + postUrl;
         }
 
         mScrollPosition = mListView.getFirstVisiblePosition();
@@ -188,8 +188,10 @@ public class PostListActivity extends ListActivity {
     }
 
     private void savePost(String index, String postId, String title, String url,
-                          String prettyUrl, String points, String author, String postedAgo) {
-        long id = mDbHelper.createPost(index, postId, title, url, prettyUrl, points, author, postedAgo);
+                          String prettyUrl, String points, String author,
+                          String postedAgo, String numComments) {
+        long id = mDbHelper.createPost(index, postId, title, url, prettyUrl,
+                points, author, postedAgo, numComments);
     }
 
     private boolean deleteAllPosts() {
@@ -236,23 +238,24 @@ public class PostListActivity extends ListActivity {
 
             JSONArray jsonPosts;
             JSONObject post;
-            String index, postId, title, url, prettyUrl, points, author, postedAgo;
+            String index, postId, title, url, prettyUrl, points, author, postedAgo, numComments;
 
             try {
-                jsonPosts = mPostData.getJSONArray("items");
+                jsonPosts = mPostData.getJSONArray("links");
                 for (int i = 0; i < jsonPosts.length(); i++) {
                     post = jsonPosts.getJSONObject(i);
 
-                    index = Integer.toString(i + 1);
-                    postId = post.getString(KEY_POST_ID);
+                    index = post.getString(KEY_POST_INDEX);
+                    postId = "";
                     title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
                     url = post.getString(KEY_URL);
                     prettyUrl = formatUrl(url);
-                    points = post.getString(KEY_POINTS);
+                    points = post.getString(KEY_SCORE);
                     author = post.getString(KEY_AUTHOR);
-                    postedAgo = post.getString(KEY_POSTED_AGO);
+                    postedAgo = "";
+                    numComments = post.getString(KEY_NUM_COMMENTS);
 
-                    savePost(index, postId, title, url, prettyUrl, points, author, postedAgo);
+                    savePost(index, postId, title, url, prettyUrl, points, author, postedAgo, numComments);
                 }
 
             } catch (JSONException e) {
@@ -340,7 +343,7 @@ public class PostListActivity extends ListActivity {
                     jsonResponse =new JSONObject(builder.toString());
                     Log.v(TAG, "Response: " + jsonResponse);
 
-                    JSONArray jsonPosts = jsonResponse.getJSONArray("items");
+                    JSONArray jsonPosts = jsonResponse.getJSONArray("links");
                     for (int i = 0; i < jsonPosts.length(); i++) {
                         JSONObject jsonPost = jsonPosts.getJSONObject(i);
                         String title = jsonPost.getString(KEY_TITLE);

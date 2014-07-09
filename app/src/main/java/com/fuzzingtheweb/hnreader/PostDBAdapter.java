@@ -19,9 +19,10 @@ public class PostDBAdapter {
     public final String KEY_TITLE = "title";
     public final String KEY_URL = "url";
     public final String KEY_PRETTY_URL = "prettyUrl";
-    public final String KEY_POINTS = "points";
-    public final String KEY_AUTHOR = "postedBy";
+    public final String KEY_SCORE = "score";
+    public final String KEY_AUTHOR = "author";
     public final String KEY_POSTED_AGO = "postedAgo";
+    public final String KEY_NUM_COMMENTS = "comments";
 
     private static final String TAG = "PostDbAdapter";
     private DatabaseHelper mDbHelper;
@@ -33,8 +34,8 @@ public class PostDBAdapter {
     private static final String DATABASE_CREATE =
             "create table posts (_id integer primary key autoincrement, " +
                     "postIndex text not null, postId text not null, title text not null, " +
-                    "url text not null, prettyUrl text not null, points text not null, " +
-                    "postedBy text not null, postedAgo text not null);";
+                    "url text not null, prettyUrl text not null, score text not null, " +
+                    "author text not null, postedAgo text not null, comments text not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
@@ -98,22 +99,25 @@ public class PostDBAdapter {
      * @param title of the post
      * @param url of the post
      * @param prettyUrl for showing in the post list
-     * @param points the post was given in HN
+     * @param score the post was given in HN
      * @param author of the post in HN
      * @param postedAgo relative time to when it was posted in HN
+     * @param numComments number of comments
      * @return true if created, false otherwise
      */
     public long createPost(String index, String postId, String title, String url,
-                           String prettyUrl, String points, String author, String postedAgo) {
+                           String prettyUrl, String score, String author,
+                           String postedAgo, String numComments) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_INDEX, index);
         initialValues.put(KEY_POST_ID, postId);
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_URL, url);
         initialValues.put(KEY_PRETTY_URL, prettyUrl);
-        initialValues.put(KEY_POINTS, points);
+        initialValues.put(KEY_SCORE, score);
         initialValues.put(KEY_AUTHOR, author);
         initialValues.put(KEY_POSTED_AGO, postedAgo);
+        initialValues.put(KEY_NUM_COMMENTS, numComments);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -145,7 +149,8 @@ public class PostDBAdapter {
     public Cursor fetchAllPosts() {
         return mDb.query(DATABASE_TABLE, new String[] {
                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
-                KEY_PRETTY_URL, KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO},
+                KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
+                KEY_NUM_COMMENTS},
                 null, null, null, null, null);
     }
 
@@ -161,7 +166,8 @@ public class PostDBAdapter {
         Cursor mCursor =
                 mDb.query(true, DATABASE_TABLE, new String[] {
                         KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
-                        KEY_PRETTY_URL, KEY_POINTS, KEY_AUTHOR, KEY_POSTED_AGO},
+                        KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
+                        KEY_NUM_COMMENTS},
                         KEY_ROWID + "=" + rowId, null,
                         null, null, null, null);
         if (mCursor != null) {

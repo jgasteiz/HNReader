@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/item_points"
+                    android:id="@+id/item_score"
                     android:textSize="12sp"
                     android:textColor="#666d74"
                     android:layout_width="wrap_content"
@@ -64,13 +64,13 @@
                     android:text="by someone" />
 
                 <TextView
-                    android:id="@+id/item_posted_ago"
+                    android:id="@+id/item_num_comments"
                     android:textSize="12sp"
                     android:textColor="#666d74"
                     android:layout_marginLeft="10sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1 hr ago" />
+                    android:text="70 comments" />
 
             </LinearLayout>
         </LinearLayout>
