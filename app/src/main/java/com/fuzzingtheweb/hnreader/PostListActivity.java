@@ -49,8 +49,6 @@ public class PostListActivity extends ListActivity {
     private ListView mListView;
     private int mScrollPosition;
 
-    private static final String Y_COMBINATOR_URL = "news.ycombinator.com";
-    private static final String HTTPS_Y_COMBINATOR_URL = "https://news.ycombinator.com/";
     protected JSONObject mPostData;
     protected ProgressBar mProgressBar;
     protected Button mRefreshButton;
@@ -58,7 +56,7 @@ public class PostListActivity extends ListActivity {
 
     private final String KEY_INDEX = "postIndex";
     private final String KEY_POST_INDEX = "index";
-    private final String KEY_POST_ID = "id";
+    private final String KEY_POST_ID = "hn_id";
     private final String KEY_TITLE = "title";
     private final String KEY_URL = "url";
     private final String KEY_PRETTY_URL = "prettyUrl";
@@ -128,13 +126,6 @@ public class PostListActivity extends ListActivity {
         Cursor cursor = mDbHelper.fetchPost(id);
         int urlColIndex = cursor.getColumnIndex("url");
         String postUrl = cursor.getString(urlColIndex);
-
-        // Some urls are ycombinator internal urls.
-        // Need new attribute for hn posts - postId
-        if (postUrl.startsWith("item")) {
-            postUrl = HTTPS_Y_COMBINATOR_URL + postUrl;
-        }
-
         mScrollPosition = mListView.getFirstVisiblePosition();
 
         Intent intent = new Intent(this, WebViewActivity.class);
@@ -187,10 +178,11 @@ public class PostListActivity extends ListActivity {
         }
     }
 
-    private void savePost(String index, String postId, String title, String url,
+    private void savePost(int index, String postId, String title, String url,
                           String prettyUrl, String points, String author,
                           String postedAgo, String numComments) {
-        long id = mDbHelper.createPost(index, postId, title, url, prettyUrl,
+
+        mDbHelper.createPost(index, postId, title, url, prettyUrl,
                 points, author, postedAgo, numComments);
     }
 
@@ -238,15 +230,16 @@ public class PostListActivity extends ListActivity {
 
             JSONArray jsonPosts;
             JSONObject post;
-            String index, postId, title, url, prettyUrl, points, author, postedAgo, numComments;
+            int index;
+            String postId, title, url, prettyUrl, points, author, postedAgo, numComments;
 
             try {
                 jsonPosts = mPostData.getJSONArray("links");
                 for (int i = 0; i < jsonPosts.length(); i++) {
                     post = jsonPosts.getJSONObject(i);
 
-                    index = post.getString(KEY_POST_INDEX);
-                    postId = "";
+                    index = post.getInt(KEY_POST_INDEX);
+                    postId = post.getString(KEY_POST_ID);
                     title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
                     url = post.getString(KEY_URL);
                     prettyUrl = formatUrl(url);
@@ -271,9 +264,6 @@ public class PostListActivity extends ListActivity {
         try {
             URI uri = new URI(formattedUrl);
             formattedUrl = uri.getHost();
-            if (formattedUrl == null) {
-                formattedUrl = Y_COMBINATOR_URL;
-            }
         } catch (URISyntaxException e) {
             logException(e);
         }

@@ -33,7 +33,7 @@ public class PostDBAdapter {
      */
     private static final String DATABASE_CREATE =
             "create table posts (_id integer primary key autoincrement, " +
-                    "postIndex text not null, postId text not null, title text not null, " +
+                    "postIndex integer not null, postId text not null, title text not null, " +
                     "url text not null, prettyUrl text not null, score text not null, " +
                     "author text not null, posted_ago text not null, comments text not null);";
 
@@ -105,7 +105,7 @@ public class PostDBAdapter {
      * @param numComments number of comments
      * @return true if created, false otherwise
      */
-    public long createPost(String index, String postId, String title, String url,
+    public long createPost(int index, String postId, String title, String url,
                            String prettyUrl, String score, String author,
                            String postedAgo, String numComments) {
         ContentValues initialValues = new ContentValues();
@@ -151,7 +151,7 @@ public class PostDBAdapter {
                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                 KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
                 KEY_NUM_COMMENTS},
-                null, null, null, null, null);
+                null, null, null, null, KEY_INDEX);
     }
 
     /**
