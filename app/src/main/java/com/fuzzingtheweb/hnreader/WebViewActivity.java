@@ -46,10 +46,16 @@ public class WebViewActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int itemId = item.getItemId();
 
-        if (itemId == R.id.action_share) {
-            sharePost();
-        } else if (itemId == R.id.open_browser) {
-            openBrowser();
+        switch (itemId) {
+            case R.id.action_share:
+                sharePost();
+                break;
+            case R.id.open_browser:
+                openBrowser();
+                break;
+            case android.R.id.home:
+                this.finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

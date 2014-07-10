@@ -64,7 +64,7 @@ public class PostListActivity extends ListActivity {
     private final String KEY_PRETTY_URL = "prettyUrl";
     private final String KEY_SCORE = "score";
     private final String KEY_AUTHOR = "author";
-    private final String KEY_POSTED_AGO = "postedAgo";
+    private final String KEY_POSTED_AGO = "posted_ago";
     private static final String KEY_NUM_COMMENTS = "comments";
 
     private static final String API_URL = "http://api-hnreader.rhcloud.com/";
@@ -105,9 +105,9 @@ public class PostListActivity extends ListActivity {
         startManagingCursor(postsCursor);
 
         String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
-                KEY_AUTHOR, KEY_NUM_COMMENTS };
+                KEY_AUTHOR, KEY_POSTED_AGO, KEY_NUM_COMMENTS };
         int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_score, R.id.item_author, R.id.item_num_comments };
+                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
 
         // Now create a simple cursor adapter and set it to display
         SimpleCursorAdapter posts =
@@ -252,7 +252,7 @@ public class PostListActivity extends ListActivity {
                     prettyUrl = formatUrl(url);
                     points = post.getString(KEY_SCORE);
                     author = post.getString(KEY_AUTHOR);
-                    postedAgo = "";
+                    postedAgo = post.getString(KEY_POSTED_AGO);
                     numComments = post.getString(KEY_NUM_COMMENTS);
 
                     savePost(index, postId, title, url, prettyUrl, points, author, postedAgo, numComments);

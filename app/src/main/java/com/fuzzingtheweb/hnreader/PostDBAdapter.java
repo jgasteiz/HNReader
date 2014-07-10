@@ -21,7 +21,7 @@ public class PostDBAdapter {
     public final String KEY_PRETTY_URL = "prettyUrl";
     public final String KEY_SCORE = "score";
     public final String KEY_AUTHOR = "author";
-    public final String KEY_POSTED_AGO = "postedAgo";
+    public final String KEY_POSTED_AGO = "posted_ago";
     public final String KEY_NUM_COMMENTS = "comments";
 
     private static final String TAG = "PostDbAdapter";
@@ -35,7 +35,7 @@ public class PostDBAdapter {
             "create table posts (_id integer primary key autoincrement, " +
                     "postIndex text not null, postId text not null, title text not null, " +
                     "url text not null, prettyUrl text not null, score text not null, " +
-                    "author text not null, postedAgo text not null, comments text not null);";
+                    "author text not null, posted_ago text not null, comments text not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
