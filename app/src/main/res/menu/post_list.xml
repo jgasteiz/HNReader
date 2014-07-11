@@ -1,11 +1,10 @@
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:hnreader="http://schemas.android.com/apk/res-auto" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".PostListActivity" >
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_action_refresh"
-        android:orderInCategory="100"
-        hnreader:showAsAction="ifRoom"
+        android:showAsAction="withText|ifRoom"
         android:title="@string/action_refresh">
     </item>
 </menu>
