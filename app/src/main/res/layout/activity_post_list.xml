@@ -1,66 +1,23 @@
 <!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
 <android.support.v4.widget.DrawerLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/drawer_layout"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".MyActivity">
-
-<FrameLayout
-    android:id="@+id/container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MyActivity">
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true" />
-
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        android:visibility="gone"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@android:id/empty"
-        android:gravity="top|center"
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+    </FrameLayout>
 
-        <TextView
-            android:text="@string/no_items"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:gravity="center" />
-
-        <Button
-            android:id="@+id/refresh_button"
-            android:text="@string/action_refresh"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:gravity="center" />
-
-    </LinearLayout>
-</FrameLayout>
-
-<fragment android:id="@+id/navigation_drawer"
-    android:layout_width="@dimen/navigation_drawer_width"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    android:name="com.fuzzingtheweb.hnreader.NavigationDrawerFragment"
-    tools:layout="@layout/fragment_navigation_drawer" />
+    <fragment android:id="@+id/navigation_drawer"
+        android:layout_width="@dimen/navigation_drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:name="com.fuzzingtheweb.hnreader.NavigationDrawerFragment"
+        tools:layout="@layout/fragment_navigation_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

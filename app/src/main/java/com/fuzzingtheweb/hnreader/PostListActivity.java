@@ -1,30 +1,27 @@
 package com.fuzzingtheweb.hnreader;
 
 import android.app.ActionBar;
-import android.app.AlertDialog;
+import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -34,7 +31,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -47,7 +43,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
-public class PostListActivity extends ListActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class PostListActivity extends Activity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private PostDBAdapter mDbHelper;
     private IntentManager mIntentManager;
@@ -92,18 +88,18 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
-        mRefreshButton = (Button) findViewById(R.id.refresh_button);
-
-        mRefreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshData();
-            }
-        });
-
-        populateListView();
-        registerForContextMenu(getListView());
+//        mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+//        mRefreshButton = (Button) findViewById(R.id.refresh_button);
+//
+//        mRefreshButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                refreshData();
+//            }
+//        });
+//
+//        populateListView();
+//        registerForContextMenu(getListView());
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -111,20 +107,20 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        log("Item clicked");
-        log("Position: " + position);
-        log("Id: " + id);
-
-        String postUrl = getPostUrl(id);
-
-        Intent intent = new Intent(this, WebViewActivity.class);
-        intent.setData(Uri.parse(postUrl));
-        startActivity(intent);
-    }
+//    @Override
+//    protected void onListItemClick(ListView l, View v, int position, long id) {
+//        super.onListItemClick(l, v, position, id);
+//
+//        log("Item clicked");
+//        log("Position: " + position);
+//        log("Id: " + id);
+//
+//        String postUrl = getPostUrl(id);
+//
+//        Intent intent = new Intent(this, WebViewActivity.class);
+//        intent.setData(Uri.parse(postUrl));
+//        startActivity(intent);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -188,24 +184,24 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
         actionBar.setTitle(mTitle);
     }
 
-    /**
-     * Populate the main list view with the database content.
-     */
-    private void populateListView() {
-        // Get all of the rows from the database and create the item list
-        Cursor postsCursor = mDbHelper.fetchAllPosts();
-        startManagingCursor(postsCursor);
-
-        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
-                KEY_AUTHOR, KEY_POSTED_AGO, KEY_NUM_COMMENTS };
-        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
-
-        // Now create a simple cursor adapter and set it to display
-        SimpleCursorAdapter posts =
-                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
-        setListAdapter(posts);
-    }
+//    /**
+//     * Populate the main list view with the database content.
+//     */
+//    private void populateListView() {
+//        // Get all of the rows from the database and create the item list
+//        Cursor postsCursor = mDbHelper.fetchAllPosts();
+//        startManagingCursor(postsCursor);
+//
+//        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
+//                KEY_AUTHOR, KEY_POSTED_AGO, KEY_NUM_COMMENTS };
+//        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
+//                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
+//
+//        // Now create a simple cursor adapter and set it to display
+//        SimpleCursorAdapter posts =
+//                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
+//        setListAdapter(posts);
+//    }
 
     /**
      * Given an item id, return the url of the item.
@@ -275,48 +271,48 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    /**
-     * Handles API response parsing the JSON and loading the list of posts in the main layout.
-     */
-    private void handleAPIResponse() {
-        mProgressBar.setVisibility(View.GONE);
-
-        if (mPostData == null) {
-            updateDisplayForError();
-        } else {
-
-            deleteAllPosts();
-
-            JSONArray jsonPosts;
-            JSONObject post;
-            int index;
-            String postId, title, url, prettyUrl, points, author, postedAgo, numComments;
-
-            try {
-                jsonPosts = mPostData.getJSONArray("links");
-                for (int i = 0; i < jsonPosts.length(); i++) {
-                    post = jsonPosts.getJSONObject(i);
-
-                    index = post.getInt(KEY_POST_INDEX);
-                    postId = post.getString(KEY_POST_ID);
-                    title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
-                    url = post.getString(KEY_URL);
-                    prettyUrl = formatUrl(url);
-                    points = post.getString(KEY_SCORE);
-                    author = post.getString(KEY_AUTHOR);
-                    postedAgo = post.getString(KEY_POSTED_AGO);
-                    numComments = post.getString(KEY_NUM_COMMENTS);
-
-                    savePost(index, postId, title, url, prettyUrl, points, author, postedAgo, numComments);
-                }
-
-            } catch (JSONException e) {
-                logException(e);
-            }
-        }
-
-        populateListView();
-    }
+//    /**
+//     * Handles API response parsing the JSON and loading the list of posts in the main layout.
+//     */
+//    private void handleAPIResponse() {
+//        mProgressBar.setVisibility(View.GONE);
+//
+//        if (mPostData == null) {
+//            updateDisplayForError();
+//        } else {
+//
+//            deleteAllPosts();
+//
+//            JSONArray jsonPosts;
+//            JSONObject post;
+//            int index;
+//            String postId, title, url, prettyUrl, points, author, postedAgo, numComments;
+//
+//            try {
+//                jsonPosts = mPostData.getJSONArray("links");
+//                for (int i = 0; i < jsonPosts.length(); i++) {
+//                    post = jsonPosts.getJSONObject(i);
+//
+//                    index = post.getInt(KEY_POST_INDEX);
+//                    postId = post.getString(KEY_POST_ID);
+//                    title = Html.fromHtml(post.getString(KEY_TITLE)).toString();
+//                    url = post.getString(KEY_URL);
+//                    prettyUrl = formatUrl(url);
+//                    points = post.getString(KEY_SCORE);
+//                    author = post.getString(KEY_AUTHOR);
+//                    postedAgo = post.getString(KEY_POSTED_AGO);
+//                    numComments = post.getString(KEY_NUM_COMMENTS);
+//
+//                    savePost(index, postId, title, url, prettyUrl, points, author, postedAgo, numComments);
+//                }
+//
+//            } catch (JSONException e) {
+//                logException(e);
+//            }
+//        }
+//
+//        populateListView();
+//    }
 
     private String formatUrl(String url) {
         String formattedUrl = url;
@@ -329,20 +325,20 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
         return formattedUrl;
     }
 
-    /**
-     * Shows an notification in the screen for an error related to non existing items.
-     */
-    private void updateDisplayForError() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.error_title));
-        builder.setMessage(getString(R.string.error_message));
-        builder.setPositiveButton(android.R.string.ok, null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        TextView emptyTextView = (TextView) getListView().getEmptyView();
-        emptyTextView.setText(getString(R.string.no_items));
-    }
+//    /**
+//     * Shows an notification in the screen for an error related to non existing items.
+//     */
+//    private void updateDisplayForError() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle(getString(R.string.error_title));
+//        builder.setMessage(getString(R.string.error_message));
+//        builder.setPositiveButton(android.R.string.ok, null);
+//        AlertDialog dialog = builder.create();
+//        dialog.show();
+//
+//        TextView emptyTextView = (TextView) getListView().getEmptyView();
+//        emptyTextView.setText(getString(R.string.no_items));
+//    }
 
     /**
      * Local method for logging an exception.
@@ -363,8 +359,68 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PostListFragment.newInstance(position + 1))
+                .commit();
     }
+
+    public void onSectionAttached(int number) {
+        switch (number) {
+            case 1:
+                mTitle = "dummy title 1";
+                break;
+            case 2:
+                mTitle = "dummy title 2";
+                break;
+            case 3:
+                mTitle = "dummy title 3";
+                break;
+        }
+    }
+
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PostListFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PostListFragment newInstance(int sectionNumber) {
+            PostListFragment fragment = new PostListFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        public PostListFragment() {
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            return rootView;
+        }
+
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            ((PostListActivity) activity).onSectionAttached(
+                    getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+    }
+
 
     /**
      * Asynctask for making a call to the API.
@@ -422,7 +478,7 @@ public class PostListActivity extends ListActivity implements NavigationDrawerFr
         @Override
         protected void onPostExecute(JSONObject result) {
             mPostData = result;
-            handleAPIResponse();
+//            handleAPIResponse();
         }
     }
 
