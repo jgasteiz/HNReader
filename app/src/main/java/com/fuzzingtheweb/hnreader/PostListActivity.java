@@ -1,6 +1,8 @@
 package com.fuzzingtheweb.hnreader;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -44,10 +47,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
-public class PostListActivity extends ListActivity {
+public class PostListActivity extends ListActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private PostDBAdapter mDbHelper;
     private IntentManager mIntentManager;
+
+    private NavigationDrawerFragment mNavigationDrawerFragment;
+
+    private CharSequence mTitle;
 
     protected JSONObject mPostData;
     protected ProgressBar mProgressBar;
@@ -81,6 +88,10 @@ public class PostListActivity extends ListActivity {
         mDbHelper = new PostDBAdapter(this);
         mDbHelper.open();
 
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mTitle = getTitle();
+
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
         mRefreshButton = (Button) findViewById(R.id.refresh_button);
 
@@ -93,6 +104,11 @@ public class PostListActivity extends ListActivity {
 
         populateListView();
         registerForContextMenu(getListView());
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
     @Override
@@ -112,9 +128,15 @@ public class PostListActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.post_list, menu);
-        return true;
+        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+            // Only show items in the action bar relevant to this screen
+            // if the drawer is not showing. Otherwise, let the drawer
+            // decide what to show in the action bar.
+            getMenuInflater().inflate(R.menu.post_list, menu);
+            restoreActionBar();
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -157,6 +179,13 @@ public class PostListActivity extends ListActivity {
                 break;
         }
         return result;
+    }
+
+    public void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(mTitle);
     }
 
     /**
@@ -330,6 +359,11 @@ public class PostListActivity extends ListActivity {
      */
     private void log(String message) {
         Log.d(TAG, message);
+    }
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+
     }
 
     /**
