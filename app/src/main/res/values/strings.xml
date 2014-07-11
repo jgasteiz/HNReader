@@ -13,5 +13,6 @@
     <string name="action_share">Share</string>
     <string name="action_refresh">Refresh</string>
     <string name="open_browser">Open in browser</string>
+    <string name="menu_favorite">Mark as favourite</string>
 
 </resources>

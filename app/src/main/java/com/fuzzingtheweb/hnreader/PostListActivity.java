@@ -12,9 +12,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -45,9 +47,7 @@ import java.net.URISyntaxException;
 public class PostListActivity extends ListActivity {
 
     private PostDBAdapter mDbHelper;
-
-    private ListView mListView;
-    private int mScrollPosition;
+    private IntentManager mIntentManager;
 
     protected JSONObject mPostData;
     protected ProgressBar mProgressBar;
@@ -65,6 +65,10 @@ public class PostListActivity extends ListActivity {
     private final String KEY_POSTED_AGO = "posted_ago";
     private static final String KEY_NUM_COMMENTS = "comments";
 
+    private static final int FAVORITE_ID = Menu.FIRST;
+    private static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
+    private static final int SHARE_ID = Menu.FIRST + 2;
+
     private static final String API_URL = "http://api-hnreader.rhcloud.com/";
 
     @Override
@@ -72,13 +76,7 @@ public class PostListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_list);
 
-        if (savedInstanceState != null) {
-            mScrollPosition = savedInstanceState.getInt("mScrollPosition");
-        } else {
-            mScrollPosition = 0;
-        }
-
-        mListView = (ListView) findViewById(android.R.id.list);
+        mIntentManager = new IntentManager();
 
         mDbHelper = new PostDBAdapter(this);
         mDbHelper.open();
@@ -94,25 +92,7 @@ public class PostListActivity extends ListActivity {
         });
 
         populateListView();
-        restoreScroll(savedInstanceState);
-    }
-
-    private void populateListView() {
-        // Get all of the rows from the database and create the item list
-        Cursor postsCursor = mDbHelper.fetchAllPosts();
-        startManagingCursor(postsCursor);
-
-        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
-                KEY_AUTHOR, KEY_POSTED_AGO, KEY_NUM_COMMENTS };
-        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
-
-        // Now create a simple cursor adapter and set it to display
-        SimpleCursorAdapter posts =
-                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
-        setListAdapter(posts);
-
-        mListView.setSelection(mScrollPosition);
+        registerForContextMenu(getListView());
     }
 
     @Override
@@ -123,10 +103,7 @@ public class PostListActivity extends ListActivity {
         log("Position: " + position);
         log("Id: " + id);
 
-        Cursor cursor = mDbHelper.fetchPost(id);
-        int urlColIndex = cursor.getColumnIndex("url");
-        String postUrl = cursor.getString(urlColIndex);
-        mScrollPosition = mListView.getFirstVisiblePosition();
+        String postUrl = getPostUrl(id);
 
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.setData(Uri.parse(postUrl));
@@ -155,29 +132,77 @@ public class PostListActivity extends ListActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putInt("mScrollPosition", mScrollPosition);
-        super.onSaveInstanceState(savedInstanceState);
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
+        menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
+        menu.add(0, SHARE_ID, 0, R.string.action_share);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        restoreScroll(savedInstanceState);
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean result = super.onContextItemSelected(item);
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        String postUrl = getPostUrl(info.id);
+
+        switch (item.getItemId()) {
+            case SHARE_ID:
+                Intent shareIntent = mIntentManager.getShareIntent(postUrl);
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
+                break;
+            case OPEN_IN_BROWSER_ID:
+                Intent browserIntent = mIntentManager.getBrowserIntent(postUrl);
+                startActivity(browserIntent);
+                break;
+        }
+        return result;
     }
 
     /**
-     * Restore the scroll position on screen
-     *
-     * @param savedInstanceState saved state of the activity
+     * Populate the main list view with the database content.
      */
-    private void restoreScroll(Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey("mScrollPosition"))
-        {
-            mScrollPosition = savedInstanceState.getInt("mScrollPosition");
-        }
+    private void populateListView() {
+        // Get all of the rows from the database and create the item list
+        Cursor postsCursor = mDbHelper.fetchAllPosts();
+        startManagingCursor(postsCursor);
+
+        String[] keys = { KEY_INDEX, KEY_TITLE, KEY_PRETTY_URL, KEY_SCORE,
+                KEY_AUTHOR, KEY_POSTED_AGO, KEY_NUM_COMMENTS };
+        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
+                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
+
+        // Now create a simple cursor adapter and set it to display
+        SimpleCursorAdapter posts =
+                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
+        setListAdapter(posts);
     }
 
+    /**
+     * Given an item id, return the url of the item.
+     *
+     * @param id in the database for the selected item.
+     * @return the item url
+     */
+    private String getPostUrl(long id) {
+        Cursor cursor = mDbHelper.fetchPost(id);
+        int urlColIndex = cursor.getColumnIndex("url");
+        return cursor.getString(urlColIndex);
+    }
+
+    /**
+     * Save a post in the database.
+     *
+     * @param index
+     * @param postId
+     * @param title
+     * @param url
+     * @param prettyUrl
+     * @param points
+     * @param author
+     * @param postedAgo
+     * @param numComments
+     */
     private void savePost(int index, String postId, String title, String url,
                           String prettyUrl, String points, String author,
                           String postedAgo, String numComments) {
@@ -186,6 +211,11 @@ public class PostListActivity extends ListActivity {
                 points, author, postedAgo, numComments);
     }
 
+    /**
+     * Delete all posts from the database.
+     *
+     * @return true if everything went fine
+     */
     private boolean deleteAllPosts() {
         return mDbHelper.deleteAllPosts();
     }

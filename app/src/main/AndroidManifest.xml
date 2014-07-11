@@ -20,10 +20,8 @@
         </activity>
         <activity
             android:name=".WebViewActivity"
+            android:parentActivityName=".PostListActivity"
             android:label="@string/title_activity_web_view" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".PostListActivity" />
         </activity>
     </application>
 

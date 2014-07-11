@@ -12,19 +12,19 @@ import android.webkit.WebViewClient;
 public class WebViewActivity extends ActionBarActivity {
 
     protected String mUrl;
+    private IntentManager mIntentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
-        // Add the `back` icon to the action bar
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-
         // Create an intent for displaying the url in a webView
         Intent intent = getIntent();
         Uri blogUri = intent.getData();
         mUrl = blogUri.toString();
+
+        mIntentManager = new IntentManager();
 
         // Create the webView and load the url content
         WebView webView = (WebView) findViewById(R.id.webView);
@@ -48,10 +48,12 @@ public class WebViewActivity extends ActionBarActivity {
 
         switch (itemId) {
             case R.id.action_share:
-                sharePost();
+                Intent shareIntent = mIntentManager.getShareIntent(mUrl);
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
                 break;
             case R.id.open_browser:
-                openBrowser();
+                Intent browserIntent = mIntentManager.getBrowserIntent(mUrl);
+                startActivity(browserIntent);
                 break;
             case android.R.id.home:
                 this.finish();
@@ -59,21 +61,5 @@ public class WebViewActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void openBrowser() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-        browserIntent.setData(Uri.parse(mUrl));
-        startActivity(browserIntent);
-    }
-
-    /**
-     * Creates a share intent for sharing the post url.
-     */
-    private void sharePost() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mUrl);
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
     }
 }
