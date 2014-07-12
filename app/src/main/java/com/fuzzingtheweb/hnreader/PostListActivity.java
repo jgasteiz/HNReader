@@ -16,10 +16,10 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,7 +50,6 @@ public class PostListActivity extends ListActivity {
     private IntentManager mIntentManager;
 
     protected JSONObject mPostData;
-    protected ProgressBar mProgressBar;
     protected Button mRefreshButton;
     public static final String TAG = PostListActivity.class.getSimpleName();
 
@@ -74,6 +73,7 @@ public class PostListActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_post_list);
 
         mIntentManager = new IntentManager();
@@ -81,7 +81,6 @@ public class PostListActivity extends ListActivity {
         mDbHelper = new PostDBAdapter(this);
         mDbHelper.open();
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
         mRefreshButton = (Button) findViewById(R.id.refresh_button);
 
         mRefreshButton.setOnClickListener(new View.OnClickListener() {
@@ -225,11 +224,11 @@ public class PostListActivity extends ListActivity {
      */
     private void refreshData() {
         if (isNetworkAvailable()) {
-            mProgressBar.setVisibility(View.VISIBLE);
+            setProgressBarIndeterminateVisibility(true);
             GetPostsTask getBlogPostsTask = new GetPostsTask();
             getBlogPostsTask.execute();
         } else {
-            mProgressBar.setVisibility(View.GONE);
+            setProgressBarIndeterminateVisibility(false);
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
     }
@@ -250,7 +249,7 @@ public class PostListActivity extends ListActivity {
      * Handles API response parsing the JSON and loading the list of posts in the main layout.
      */
     private void handleAPIResponse() {
-        mProgressBar.setVisibility(View.GONE);
+        setProgressBarIndeterminateVisibility(false);
 
         if (mPostData == null) {
             updateDisplayForError();
