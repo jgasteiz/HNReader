@@ -31,7 +31,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.activity_main);
 
         mPostUtils = new PostUtils(this);
         mIntentManager = new IntentManager();

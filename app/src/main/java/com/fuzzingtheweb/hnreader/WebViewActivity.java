@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 public class WebViewActivity extends ActionBarActivity {
 
@@ -26,10 +24,15 @@ public class WebViewActivity extends ActionBarActivity {
 
         mIntentManager = new IntentManager();
 
-        // Create the webView and load the url content
-        WebView webView = (WebView) findViewById(R.id.webView);
-        webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl(mUrl);
+        // Create the detail fragment and add it to the activity
+        // using a fragment transaction.
+        Bundle arguments = new Bundle();
+        arguments.putString(WebViewFragment.KEY_URL, mUrl);
+        WebViewFragment fragment = new WebViewFragment();
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.web_view, fragment)
+                .commit();
     }
 
     @Override
