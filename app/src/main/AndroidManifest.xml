@@ -11,16 +11,22 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".PostListActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".NewMainActivity"
+            android:label="@string/app_name" >
+        </activity>
+
         <activity
             android:name=".WebViewActivity"
-            android:parentActivityName=".PostListActivity"
+            android:parentActivityName=".MainActivity"
             android:label="@string/title_activity_web_view" >
         </activity>
     </application>

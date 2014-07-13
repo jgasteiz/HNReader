@@ -44,14 +44,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
-public class PostListActivity extends ListActivity {
+public class MainActivity extends ListActivity {
 
     private PostDBAdapter mDbHelper;
     private IntentManager mIntentManager;
 
     protected JSONObject mPostData;
     protected Button mRefreshButton;
-    public static final String TAG = PostListActivity.class.getSimpleName();
+    public static final String TAG = MainActivity.class.getSimpleName();
 
     private final String KEY_INDEX = "postIndex";
     private final String KEY_POST_INDEX = "index";
@@ -74,7 +74,7 @@ public class PostListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.activity_post_list);
+        setContentView(R.layout.activity_main);
 
         mIntentManager = new IntentManager();
 
@@ -98,9 +98,9 @@ public class PostListActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        log("Item clicked");
-        log("Position: " + position);
-        log("Id: " + id);
+        Log.d(TAG, "Item clicked");
+        Log.d(TAG, "Position: " + position);
+        Log.d(TAG, "Id: " + id);
 
         String postUrl = getPostUrl(id);
 
@@ -112,7 +112,7 @@ public class PostListActivity extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.post_list, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -125,6 +125,11 @@ public class PostListActivity extends ListActivity {
 
         if (itemId == R.id.action_refresh) {
             refreshData();
+        } else if (itemId == R.id.action_new_main) {
+            Intent intent = new Intent(this, NewMainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -173,7 +178,7 @@ public class PostListActivity extends ListActivity {
 
         // Now create a simple cursor adapter and set it to display
         SimpleCursorAdapter posts =
-                new SimpleCursorAdapter(this, R.layout.activity_post_item, postsCursor, keys, ids);
+                new SimpleCursorAdapter(this, R.layout.post_item, postsCursor, keys, ids);
         setListAdapter(posts);
     }
 
@@ -321,14 +326,6 @@ public class PostListActivity extends ListActivity {
      */
     private void logException(Exception e) {
         Log.e(TAG, "Exception caught!", e);
-    }
-
-    /**
-     * Local method for debug logging
-     * @param message string to log
-     */
-    private void log(String message) {
-        Log.d(TAG, message);
     }
 
     /**

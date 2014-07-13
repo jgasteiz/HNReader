@@ -14,5 +14,7 @@
     <string name="action_refresh">Refresh</string>
     <string name="open_browser">Open in browser</string>
     <string name="menu_favorite">Mark as favourite</string>
+    <string name="action_new_main">New Main</string>
+    <string name="action_main">Main</string>
 
 </resources>
