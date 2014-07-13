@@ -31,6 +31,13 @@
         android:id="@+id/web_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
+        android:layout_weight="3">
+
+        <TextView
+            android:gravity="center"
+            android:text="@string/webview_empty_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
 </LinearLayout>
