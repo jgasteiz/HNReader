@@ -56,6 +56,8 @@ public class PostFragment extends ListFragment {
         public void onItemSelected(MenuItem item);
 
         public void onItemClick(long id);
+
+        void onEmptyList();
     }
 
     /**
@@ -69,6 +71,11 @@ public class PostFragment extends ListFragment {
 
         @Override
         public void onItemClick(long id) {
+
+        }
+
+        @Override
+        public void onEmptyList() {
 
         }
     };
@@ -157,6 +164,10 @@ public class PostFragment extends ListFragment {
 
         ListView listView = (ListView) mRootView.findViewById(android.R.id.list);
         listView.setAdapter(posts);
+
+        if (posts.isEmpty()) {
+            mCallbacks.onEmptyList();
+        }
     }
 
     /**

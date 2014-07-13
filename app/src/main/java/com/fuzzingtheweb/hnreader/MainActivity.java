@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -99,6 +100,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     @Override
     public void onItemClick(long id) {
         String postUrl = mPostUtils.getPostUrl(id);
+        Log.d(TAG, "Url to load: " + postUrl);
 
         if (mTwoPane) {
             Bundle arguments = new Bundle();
@@ -113,6 +115,10 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
             intent.setData(Uri.parse(postUrl));
             startActivity(intent);
         }
+    }
+
+    public void onEmptyList() {
+        refreshData();
     }
 
     /**
