@@ -122,11 +122,11 @@ public class PostUtils {
                 }
 
                 jsonResponse = new JSONObject(builder.toString());
-                Log.v(NewMainActivity.TAG, "Response: " + jsonResponse);
+                Log.v(MainActivity.TAG, "Response: " + jsonResponse);
             } else {
-                Log.i(NewMainActivity.TAG, "Unsuccessful HTTP Response Code: " + responseCode);
+                Log.i(MainActivity.TAG, "Unsuccessful HTTP Response Code: " + responseCode);
             }
-            Log.i(NewMainActivity.TAG, "Code: " + responseCode);
+            Log.i(MainActivity.TAG, "Code: " + responseCode);
         } catch (MalformedURLException e) {
             logException(e);
         } catch (IOException e) {
@@ -156,6 +156,6 @@ public class PostUtils {
      * @param e exception to log
      */
     public void logException(Exception e) {
-        Log.e(NewMainActivity.TAG, "Exception caught!", e);
+        Log.e(MainActivity.TAG, "Exception caught!", e);
     }
 }

@@ -20,11 +20,6 @@
         </activity>
 
         <activity
-            android:name=".NewMainActivity"
-            android:label="@string/app_name" >
-        </activity>
-
-        <activity
             android:name=".WebViewActivity"
             android:parentActivityName=".MainActivity"
             android:label="@string/title_activity_web_view" >

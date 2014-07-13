@@ -4,5 +4,5 @@
     android:name="com.fuzzingtheweb.hnreader.PostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.fuzzingtheweb.hnreader.NewMainActivity"
+    tools:context="com.fuzzingtheweb.hnreader.MainActivity"
     tools:layout="@android:layout/list_content" />
