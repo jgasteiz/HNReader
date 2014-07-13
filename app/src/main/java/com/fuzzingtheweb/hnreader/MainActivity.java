@@ -27,6 +27,12 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     private PostUtils mPostUtils;
     private IntentManager mIntentManager;
 
+    /**
+     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
+     * device.
+     */
+    private boolean mTwoPane;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +41,20 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
 
         mPostUtils = new PostUtils(this);
         mIntentManager = new IntentManager();
+
+        if (findViewById(R.id.web_view) != null) {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-large and
+            // res/values-sw600dp). If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+
+            // In two-pane mode, list items should be given the
+            // 'activated' state when touched.
+            ((PostFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.post_list))
+                    .setActivateOnItemClick(true);
+        }
     }
 
     @Override
@@ -79,9 +99,20 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     @Override
     public void onItemClick(long id) {
         String postUrl = mPostUtils.getPostUrl(id);
-        Intent intent = new Intent(this, WebViewActivity.class);
-        intent.setData(Uri.parse(postUrl));
-        startActivity(intent);
+
+        if (mTwoPane) {
+            Bundle arguments = new Bundle();
+            arguments.putString(WebViewFragment.KEY_URL, postUrl);
+            WebViewFragment fragment = new WebViewFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.web_view, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, WebViewActivity.class);
+            intent.setData(Uri.parse(postUrl));
+            startActivity(intent);
+        }
     }
 
     /**

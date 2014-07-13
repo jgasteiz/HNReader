@@ -33,6 +33,18 @@ public class PostFragment extends ListFragment {
     private Callbacks mCallbacks = sDummyCallbacks;
 
     /**
+     * Turns on activate-on-click mode. When this mode is on, list items will be
+     * given the 'activated' state when touched.
+     */
+    public void setActivateOnItemClick(boolean activateOnItemClick) {
+        // When setting CHOICE_MODE_SINGLE, ListView will automatically
+        // give items the 'activated' state when touched.
+        getListView().setChoiceMode(activateOnItemClick
+                ? ListView.CHOICE_MODE_SINGLE
+                : ListView.CHOICE_MODE_NONE);
+    }
+
+    /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
      * selections.

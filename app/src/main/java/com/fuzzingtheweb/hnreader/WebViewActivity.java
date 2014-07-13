@@ -24,8 +24,7 @@ public class WebViewActivity extends ActionBarActivity {
 
         mIntentManager = new IntentManager();
 
-        // Create the detail fragment and add it to the activity
-        // using a fragment transaction.
+        // Create the fragment
         Bundle arguments = new Bundle();
         arguments.putString(WebViewFragment.KEY_URL, mUrl);
         WebViewFragment fragment = new WebViewFragment();

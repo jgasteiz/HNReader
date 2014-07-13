@@ -63,11 +63,17 @@
                     android:layout_height="wrap_content"
                     android:text="by someone" />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/item_posted_ago"
                     android:textSize="12sp"
                     android:textColor="#666d74"
-                    android:layout_marginLeft="10sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="8 hours ago" />
@@ -82,6 +88,7 @@
                     android:text="70 comments" />
 
             </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 
