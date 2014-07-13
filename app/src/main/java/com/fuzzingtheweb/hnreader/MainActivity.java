@@ -38,10 +38,10 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.activity_main);
-
         mPostUtils = new PostUtils(this);
         mIntentManager = new IntentManager();
+
+        setContentView(R.layout.activity_main);
 
         if (findViewById(R.id.web_view) != null) {
             // The detail container view will be present only in the
