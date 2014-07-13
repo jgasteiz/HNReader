@@ -9,37 +9,23 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 
 
 public class NewMainActivity extends FragmentActivity implements PostFragment.Callbacks {
 
-    private static final String API_URL = "http://api-hnreader.rhcloud.com/";
     public static final String TAG = NewMainActivity.class.getSimpleName();
 
-    private Utils mUtils;
+    private PostUtils mPostUtils;
+    private IntentManager mIntentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +33,8 @@ public class NewMainActivity extends FragmentActivity implements PostFragment.Ca
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_new_main);
 
-        mUtils = new Utils(this);
+        mPostUtils = new PostUtils(this);
+        mIntentManager = new IntentManager();
     }
 
     @Override
@@ -59,23 +46,36 @@ public class NewMainActivity extends FragmentActivity implements PostFragment.Ca
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int itemId = item.getItemId();
-
-        if (itemId == R.id.action_refresh) {
-            // Refresh fragment data
-            refreshData();
-            getFragmentManager();
-        } else if (itemId == R.id.action_main) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                refreshData();
+                break;
+            case R.id.action_main:
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        String postUrl = mPostUtils.getPostUrl(info.id);
+
+        switch (item.getItemId()) {
+            case PostFragment.SHARE_ID:
+                Intent shareIntent = mIntentManager.getShareIntent(postUrl);
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
+                break;
+            case PostFragment.OPEN_IN_BROWSER_ID:
+                Intent browserIntent = mIntentManager.getBrowserIntent(postUrl);
+                startActivity(browserIntent);
+                break;
+        }
     }
 
     /**
@@ -83,12 +83,12 @@ public class NewMainActivity extends FragmentActivity implements PostFragment.Ca
      * indicating that the post with the given url was selected.
      */
     @Override
-    public void onItemSelected(String postUrl) {
+    public void onItemClick(long id) {
+        String postUrl = mPostUtils.getPostUrl(id);
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.setData(Uri.parse(postUrl));
         startActivity(intent);
     }
-
 
     /**
      * If the network is available, refresh the posts.
@@ -132,13 +132,13 @@ public class NewMainActivity extends FragmentActivity implements PostFragment.Ca
         emptyTextView.setText(getString(R.string.no_items));
     }
 
-
-
+    /**
+     * Tell the PostFragment to reload its listview.
+     */
     private void reloadPostFragment() {
         PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list);
         fragment.populateListView();
     }
-
 
     /**
      * Asynctask for making a call to the API.
@@ -147,56 +147,13 @@ public class NewMainActivity extends FragmentActivity implements PostFragment.Ca
 
         @Override
         protected JSONObject doInBackground(Object[] params) {
-            int responseCode = -1;
-            JSONObject jsonResponse = null;
-            StringBuilder builder = new StringBuilder();
-            HttpClient client = new DefaultHttpClient();
-            HttpGet httpget = new HttpGet(API_URL);
-
-            try {
-                HttpResponse response = client.execute(httpget);
-                StatusLine statusLine = response.getStatusLine();
-                responseCode = statusLine.getStatusCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    HttpEntity entity = response.getEntity();
-                    InputStream content = entity.getContent();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-
-                    String line;
-                    while((line = reader.readLine()) != null){
-                        builder.append(line);
-                    }
-
-                    jsonResponse =new JSONObject(builder.toString());
-                    Log.v(NewMainActivity.TAG, "Response: " + jsonResponse);
-
-                    JSONArray jsonPosts = jsonResponse.getJSONArray("links");
-                    for (int i = 0; i < jsonPosts.length(); i++) {
-                        JSONObject jsonPost = jsonPosts.getJSONObject(i);
-                        String title = jsonPost.getString(Constants.KEY_TITLE);
-                        Log.i(NewMainActivity.TAG, "Post " + i + ": " + title);
-                    }
-
-                } else {
-                    Log.i(NewMainActivity.TAG, "Unsuccessful HTTP Response Code: " + responseCode);
-                }
-                Log.i(NewMainActivity.TAG, "Code: " + responseCode);
-            } catch (MalformedURLException e) {
-                mUtils.logException(e);
-            } catch (IOException e) {
-                mUtils.logException(e);
-            } catch (Exception e) {
-                mUtils.logException(e);
-            }
-
-            return jsonResponse;
+            return mPostUtils.getAPIResponse();
         }
 
         @Override
         protected void onPostExecute(JSONObject result) {
             setProgressBarIndeterminateVisibility(false);
-            boolean response = mUtils.handleAPIResponse(result);
+            boolean response = mPostUtils.handleAPIResponse(result);
             if (response) {
                 reloadPostFragment();
             } else {

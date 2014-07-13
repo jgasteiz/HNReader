@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -18,6 +21,10 @@ public class PostFragment extends ListFragment {
     private View mRootView;
     private PostDBAdapter mDbHelper;
     private Activity mActivity;
+
+    public static final int FAVORITE_ID = Menu.FIRST;
+    public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
+    public static final int SHARE_ID = Menu.FIRST + 2;
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -34,7 +41,9 @@ public class PostFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(MenuItem item);
+
+        public void onItemClick(long id);
     }
 
     /**
@@ -43,7 +52,12 @@ public class PostFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(MenuItem item) {
+        }
+
+        @Override
+        public void onItemClick(long id) {
+
         }
     };
 
@@ -66,6 +80,11 @@ public class PostFragment extends ListFragment {
         return mRootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        registerForContextMenu(getListView());
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -90,12 +109,22 @@ public class PostFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
+        mCallbacks.onItemClick(id);
+    }
 
-        String postUrl = getPostUrl(id);
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+//        menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
+        menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
+        menu.add(0, SHARE_ID, 0, R.string.action_share);
+    }
 
-        // Notify the active callbacks interface (the activity, if the
-        // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(postUrl);
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean result = super.onContextItemSelected(item);
+        mCallbacks.onItemSelected(item);
+        return result;
     }
 
     /**
@@ -124,7 +153,7 @@ public class PostFragment extends ListFragment {
      * @param id in the database for the selected item.
      * @return the item url
      */
-    private String getPostUrl(long id) {
+    public String getPostUrl(long id) {
         Cursor cursor = mDbHelper.fetchPost(id);
         int urlColIndex = cursor.getColumnIndex("url");
         return cursor.getString(urlColIndex);
