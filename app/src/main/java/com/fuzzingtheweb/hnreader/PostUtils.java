@@ -41,9 +41,9 @@ public class PostUtils {
             return false;
         } else {
 
-            // TODO: don't delete all posts every time we refresh the post list.
-            mDbHelper.deleteAllPosts();
+            mDbHelper.updateAllPostsIndexes();
 
+            Cursor cursor;
             JSONArray jsonPosts;
             JSONObject post;
             int index;
@@ -64,10 +64,23 @@ public class PostUtils {
                     postedAgo = post.getString(Constants.KEY_POSTED_AGO);
                     numComments = post.getString(Constants.KEY_NUM_COMMENTS);
 
-                    // TODO: consider updating existing posts, only creating when they are new.
-                    mDbHelper.createPost(index, postId, title, url, prettyUrl,
-                            points, author, postedAgo, numComments);
+                    cursor = null;
+                    if (!postId.isEmpty()) {
+                        cursor = mDbHelper.fetchPostByHNId(postId);
+                    }
+
+                    if (cursor != null && cursor.getCount() > 0) {
+                        int idColIndex = cursor.getColumnIndex("_id");
+                        long rowId = cursor.getLong(idColIndex);
+                        mDbHelper.updatePost(rowId, index, postId, title, url, prettyUrl,
+                                points, author, postedAgo, numComments);
+                    } else {
+                        mDbHelper.createPost(index, postId, title, url, prettyUrl,
+                                points, author, postedAgo, numComments);
+                    }
                 }
+
+                mDbHelper.deleteOldPosts();
 
             } catch (JSONException e) {
                 logException(e);
@@ -157,5 +170,9 @@ public class PostUtils {
      */
     public void logException(Exception e) {
         Log.e(MainActivity.TAG, "Exception caught!", e);
+    }
+
+    public void markAsRead(long id) {
+        mDbHelper.markAsRead(id);
     }
 }

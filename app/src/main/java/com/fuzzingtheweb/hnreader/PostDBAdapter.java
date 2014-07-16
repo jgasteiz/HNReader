@@ -23,6 +23,7 @@ public class PostDBAdapter {
     public final String KEY_AUTHOR = "author";
     public final String KEY_POSTED_AGO = "posted_ago";
     public final String KEY_NUM_COMMENTS = "comments";
+    public final String KEY_READ = "isRead";
 
     private static final String TAG = "PostDbAdapter";
     private DatabaseHelper mDbHelper;
@@ -35,13 +36,15 @@ public class PostDBAdapter {
             "create table posts (_id integer primary key autoincrement, " +
                     "postIndex integer not null, postId text not null, title text not null, " +
                     "url text not null, prettyUrl text not null, score text not null, " +
-                    "author text not null, posted_ago text not null, comments text not null);";
+                    "author text not null, posted_ago text not null, comments text not null, " +
+                    "isRead boolean not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
     private static final int DATABASE_VERSION = 2;
 
     private final Context mCtx;
+
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -118,6 +121,7 @@ public class PostDBAdapter {
         initialValues.put(KEY_AUTHOR, author);
         initialValues.put(KEY_POSTED_AGO, postedAgo);
         initialValues.put(KEY_NUM_COMMENTS, numComments);
+        initialValues.put(KEY_READ, false);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -141,6 +145,10 @@ public class PostDBAdapter {
         return mDb.delete(DATABASE_TABLE, null, null) > 0;
     }
 
+    public boolean deleteOldPosts() {
+        return mDb.delete(DATABASE_TABLE, KEY_INDEX + "> 50", null) > 0;
+    }
+
     /**
      * Return a Cursor over the list of all posts in the database
      *
@@ -150,7 +158,7 @@ public class PostDBAdapter {
         return mDb.query(DATABASE_TABLE, new String[] {
                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                 KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
-                KEY_NUM_COMMENTS},
+                KEY_NUM_COMMENTS, KEY_READ},
                 null, null, null, null, KEY_INDEX);
     }
 
@@ -174,6 +182,55 @@ public class PostDBAdapter {
             mCursor.moveToFirst();
         }
         return mCursor;
-
     }
+
+    public Cursor fetchPostByHNId(String postId) throws SQLException {
+
+        Cursor mCursor =
+                mDb.query(true, DATABASE_TABLE, new String[] {
+                                KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
+                                KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
+                                KEY_NUM_COMMENTS},
+                        KEY_POST_ID + "=" + postId, null,
+                        null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    public boolean updatePost(long rowId, int index, String postId, String title, String url,
+                              String prettyUrl, String score, String author,
+                              String postedAgo, String numComments) {
+
+        ContentValues args = new ContentValues();
+        args.put(KEY_INDEX, index);
+        args.put(KEY_POST_ID, postId);
+        args.put(KEY_TITLE, title);
+        args.put(KEY_URL, url);
+        args.put(KEY_PRETTY_URL, prettyUrl);
+        args.put(KEY_SCORE, score);
+        args.put(KEY_AUTHOR, author);
+        args.put(KEY_POSTED_AGO, postedAgo);
+        args.put(KEY_NUM_COMMENTS, numComments);
+
+        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+    }
+
+    public boolean updateAllPostsIndexes() {
+
+        ContentValues args = new ContentValues();
+        args.put(KEY_INDEX, "99");
+
+        return mDb.update(DATABASE_TABLE, args, null, null) > 0;
+    }
+
+    public boolean markAsRead(long rowId) {
+
+        ContentValues args = new ContentValues();
+        args.put(KEY_READ, true);
+
+        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+    }
+
 }

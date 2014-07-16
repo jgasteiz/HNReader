@@ -154,10 +154,12 @@ public class PostFragment extends ListFragment {
         mActivity.startManagingCursor(postsCursor);
 
         String[] keys = {Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL,
-                Constants.KEY_SCORE, Constants.KEY_AUTHOR, Constants.KEY_POSTED_AGO, Constants.KEY_NUM_COMMENTS};
+                Constants.KEY_SCORE, Constants.KEY_AUTHOR, Constants.KEY_POSTED_AGO,
+                Constants.KEY_NUM_COMMENTS, Constants.KEY_READ};
 
         int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_score, R.id.item_author, R.id.item_posted_ago, R.id.item_num_comments };
+                R.id.item_score, R.id.item_author, R.id.item_posted_ago,
+                R.id.item_num_comments, R.id.item_is_read };
 
         SimpleCursorAdapter posts =
                 new SimpleCursorAdapter(mActivity, R.layout.post_item, postsCursor, keys, ids);

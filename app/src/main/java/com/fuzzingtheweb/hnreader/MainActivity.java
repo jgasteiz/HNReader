@@ -115,6 +115,8 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
             intent.setData(Uri.parse(postUrl));
             startActivity(intent);
         }
+
+        mPostUtils.markAsRead(id);
     }
 
     public void onEmptyList() {
