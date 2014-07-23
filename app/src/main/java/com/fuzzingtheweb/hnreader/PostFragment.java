@@ -2,6 +2,7 @@ package com.fuzzingtheweb.hnreader;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
@@ -12,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+
+import com.fuzzingtheweb.hnreader.data.PostDBAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -155,12 +159,14 @@ public class PostFragment extends ListFragment {
 
         String[] keys = {Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL,
                 Constants.KEY_SCORE, Constants.KEY_AUTHOR, Constants.KEY_POSTED_AGO,
-                Constants.KEY_NUM_COMMENTS, Constants.KEY_READ};
+                Constants.KEY_NUM_COMMENTS};
 
         int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
                 R.id.item_score, R.id.item_author, R.id.item_posted_ago,
-                R.id.item_num_comments, R.id.item_is_read };
+                R.id.item_num_comments };
 
+        // TODO: use custom adapter
+        // http://stackoverflow.com/questions/10828657/how-to-mark-views-in-a-listview
         SimpleCursorAdapter posts =
                 new SimpleCursorAdapter(mActivity, R.layout.post_item, postsCursor, keys, ids);
 

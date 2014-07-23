@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.text.Html;
 import android.util.Log;
 
+import com.fuzzingtheweb.hnreader.data.PostDBAdapter;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -41,7 +43,9 @@ public class PostUtils {
             return false;
         } else {
 
-            mDbHelper.updateAllPostsIndexes();
+            // TODO: get this line back to life.
+            // mDbHelper.updateAllPostsIndexes();
+            mDbHelper.deleteAllPosts();
 
             Cursor cursor;
             JSONArray jsonPosts;
@@ -64,23 +68,28 @@ public class PostUtils {
                     postedAgo = post.getString(Constants.KEY_POSTED_AGO);
                     numComments = post.getString(Constants.KEY_NUM_COMMENTS);
 
-                    cursor = null;
-                    if (!postId.isEmpty()) {
-                        cursor = mDbHelper.fetchPostByHNId(postId);
-                    }
+                    mDbHelper.createPost(index, postId, title, url, prettyUrl,
+                            points, author, postedAgo, numComments);
 
-                    if (cursor != null && cursor.getCount() > 0) {
-                        int idColIndex = cursor.getColumnIndex("_id");
-                        long rowId = cursor.getLong(idColIndex);
-                        mDbHelper.updatePost(rowId, index, postId, title, url, prettyUrl,
-                                points, author, postedAgo, numComments);
-                    } else {
-                        mDbHelper.createPost(index, postId, title, url, prettyUrl,
-                                points, author, postedAgo, numComments);
-                    }
+                    // TODO: bring this code back to life.
+//                    cursor = null;
+//                    if (!postId.isEmpty()) {
+//                        cursor = mDbHelper.fetchPostByHNId(postId);
+//                    }
+//
+//                    if (cursor != null && cursor.getCount() > 0) {
+//                        int idColIndex = cursor.getColumnIndex("_id");
+//                        long rowId = cursor.getLong(idColIndex);
+//                        mDbHelper.updatePost(rowId, index, postId, title, url, prettyUrl,
+//                                points, author, postedAgo, numComments);
+//                    } else {
+//                        mDbHelper.createPost(index, postId, title, url, prettyUrl,
+//                                points, author, postedAgo, numComments);
+//                    }
                 }
 
-                mDbHelper.deleteOldPosts();
+                // TODO: bring this line back to life.
+                // mDbHelper.deleteOldPosts();
 
             } catch (JSONException e) {
                 logException(e);

@@ -29,7 +29,7 @@
             <TextView
                 android:id="@+id/item_title"
                 android:textSize="16sp"
-                android:textColor="@color/abc_search_url_text_pressed"
+                android:textColor="#222222"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="This is some hacker news cool title" />
@@ -63,13 +63,6 @@
                     android:layout_height="wrap_content"
                     android:text="by someone" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
-
                 <TextView
                     android:id="@+id/item_posted_ago"
                     android:textSize="12sp"
@@ -86,21 +79,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="70 comments" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/item_is_read"
-                    android:textSize="16sp"
-                    android:textColor="#666d74"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="italic"
-                    android:text="Read"/>
 
             </LinearLayout>
 
