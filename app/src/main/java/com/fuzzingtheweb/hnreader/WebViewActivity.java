@@ -10,7 +10,7 @@ import android.view.MenuItem;
 public class WebViewActivity extends FragmentActivity {
 
     protected String mUrl;
-    private IntentManager mIntentManager;
+    private Util mUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class WebViewActivity extends FragmentActivity {
         Uri blogUri = intent.getData();
         mUrl = blogUri.toString();
 
-        mIntentManager = new IntentManager();
+        mUtil = new Util(this);
 
         // Create the fragment
         Bundle arguments = new Bundle();
@@ -50,11 +50,11 @@ public class WebViewActivity extends FragmentActivity {
 
         switch (itemId) {
             case R.id.action_share:
-                Intent shareIntent = mIntentManager.getShareIntent(mUrl);
+                Intent shareIntent = mUtil.getShareIntent(mUrl);
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
                 break;
             case R.id.open_browser:
-                Intent browserIntent = mIntentManager.getBrowserIntent(mUrl);
+                Intent browserIntent = mUtil.getBrowserIntent(mUrl);
                 startActivity(browserIntent);
                 break;
             case android.R.id.home:

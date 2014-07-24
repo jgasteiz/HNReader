@@ -199,4 +199,8 @@ public class Util {
     public void markAsRead(long id) {
         mDbHelper.markAsRead(id);
     }
+
+    public void markAsFavorite(long id) {
+        mDbHelper.markAsRead(id);
+    }
 }

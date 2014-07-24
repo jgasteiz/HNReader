@@ -81,6 +81,8 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
 
         switch (item.getItemId()) {
             case PostFragment.FAVORITE_ID:
+                mUtil.markAsFavorite(item.getItemId());
+                Toast.makeText(this, "Post marked as favourite", Toast.LENGTH_LONG).show();
                 break;
             case PostFragment.SHARE_ID:
                 Intent shareIntent = mUtil.getShareIntent(postUrl);
