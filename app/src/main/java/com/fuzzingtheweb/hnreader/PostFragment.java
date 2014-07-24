@@ -138,7 +138,7 @@ public class PostFragment extends ListFragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-//        menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
+        menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
         menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
         menu.add(0, SHARE_ID, 0, R.string.action_share);
     }

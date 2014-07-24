@@ -26,7 +26,6 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private Util mUtil;
-    private IntentManager mIntentManager;
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -39,7 +38,6 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         mUtil = new Util(this);
-        mIntentManager = new IntentManager();
 
         setContentView(R.layout.activity_main);
 
@@ -82,12 +80,14 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
         String postUrl = mUtil.getPostUrl(info.id);
 
         switch (item.getItemId()) {
+            case PostFragment.FAVORITE_ID:
+                break;
             case PostFragment.SHARE_ID:
-                Intent shareIntent = mIntentManager.getShareIntent(postUrl);
+                Intent shareIntent = mUtil.getShareIntent(postUrl);
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
                 break;
             case PostFragment.OPEN_IN_BROWSER_ID:
-                Intent browserIntent = mIntentManager.getBrowserIntent(postUrl);
+                Intent browserIntent = mUtil.getBrowserIntent(postUrl);
                 startActivity(browserIntent);
                 break;
         }
