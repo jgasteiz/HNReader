@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.fuzzingtheweb.hnreader.Constants;
+
 /**
  * Created by javi on 06/07/2014.
  */
@@ -146,7 +148,7 @@ public class PostDBAdapter {
     }
 
     public boolean deleteOldPosts() {
-        return mDb.delete(DATABASE_TABLE, KEY_INDEX + "> 50", null) > 0;
+        return mDb.delete(DATABASE_TABLE, KEY_INDEX + " > " + Constants.LIMIT_ITEMS, null) > 0;
     }
 
     /**
@@ -159,7 +161,7 @@ public class PostDBAdapter {
                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                 KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
                 KEY_NUM_COMMENTS, KEY_READ},
-                null, null, null, null, KEY_INDEX);
+                null, null, null, null, KEY_INDEX, Integer.toString(Constants.LIMIT_ITEMS));
     }
 
     /**
@@ -220,7 +222,7 @@ public class PostDBAdapter {
     public boolean updateAllPostsIndexes() {
 
         ContentValues args = new ContentValues();
-        args.put(KEY_INDEX, "99");
+        args.put(KEY_INDEX, Constants.LIMIT_ITEMS + 1);
 
         return mDb.update(DATABASE_TABLE, args, null, null) > 0;
     }

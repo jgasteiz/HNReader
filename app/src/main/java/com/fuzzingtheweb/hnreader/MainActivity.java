@@ -25,7 +25,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    private PostUtils mPostUtils;
+    private Util mUtil;
     private IntentManager mIntentManager;
 
     /**
@@ -38,7 +38,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        mPostUtils = new PostUtils(this);
+        mUtil = new Util(this);
         mIntentManager = new IntentManager();
 
         setContentView(R.layout.activity_main);
@@ -79,7 +79,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     @Override
     public void onItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        String postUrl = mPostUtils.getPostUrl(info.id);
+        String postUrl = mUtil.getPostUrl(info.id);
 
         switch (item.getItemId()) {
             case PostFragment.SHARE_ID:
@@ -99,7 +99,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
      */
     @Override
     public void onItemClick(long id) {
-        String postUrl = mPostUtils.getPostUrl(id);
+        String postUrl = mUtil.getPostUrl(id);
         Log.d(TAG, "Url to load: " + postUrl);
 
         if (mTwoPane) {
@@ -116,7 +116,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
             startActivity(intent);
         }
 
-        mPostUtils.markAsRead(id);
+        mUtil.markAsRead(id);
     }
 
     public void onEmptyList() {
@@ -129,7 +129,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     private void refreshData() {
         if (isNetworkAvailable()) {
             setProgressBarIndeterminateVisibility(true);
-            GetPostsTask getBlogPostsTask = new GetPostsTask();
+            FetchPostsTask getBlogPostsTask = new FetchPostsTask();
             getBlogPostsTask.execute();
         } else {
             setProgressBarIndeterminateVisibility(false);
@@ -176,17 +176,17 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     /**
      * Asynctask for making a call to the API.
      */
-    private class GetPostsTask extends AsyncTask<Object, Void, JSONObject> {
+    private class FetchPostsTask extends AsyncTask<Object, Void, JSONObject> {
 
         @Override
         protected JSONObject doInBackground(Object[] params) {
-            return mPostUtils.getAPIResponse();
+            return mUtil.getAPIResponse();
         }
 
         @Override
         protected void onPostExecute(JSONObject result) {
             setProgressBarIndeterminateVisibility(false);
-            boolean response = mPostUtils.handleAPIResponse(result);
+            boolean response = mUtil.handleAPIResponse(result);
             if (response) {
                 reloadPostFragment();
             } else {

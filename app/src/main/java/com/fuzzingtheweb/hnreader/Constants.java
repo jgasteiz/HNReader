@@ -15,4 +15,8 @@ public final class Constants {
     public static final String KEY_READ = "isRead";
 
     public static final String API_URL = "http://api-hnreader.rhcloud.com/";
+
+    public static final String JSON_KEY_ITEMS = "links";
+
+    public static final int LIMIT_ITEMS = 30;
 }

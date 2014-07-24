@@ -26,11 +26,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class PostUtils {
+public class Util {
 
     private PostDBAdapter mDbHelper;
 
-    public PostUtils(Context context) {
+    public Util(Context context) {
         mDbHelper = new PostDBAdapter(context);
         mDbHelper.open();
     }
@@ -43,9 +43,7 @@ public class PostUtils {
             return false;
         } else {
 
-            // TODO: get this line back to life.
-            // mDbHelper.updateAllPostsIndexes();
-            mDbHelper.deleteAllPosts();
+            mDbHelper.updateAllPostsIndexes();
 
             Cursor cursor;
             JSONArray jsonPosts;
@@ -54,7 +52,7 @@ public class PostUtils {
             String postId, title, url, prettyUrl, points, author, postedAgo, numComments;
 
             try {
-                jsonPosts = postData.getJSONArray("links");
+                jsonPosts = postData.getJSONArray(Constants.JSON_KEY_ITEMS);
                 for (int i = 0; i < jsonPosts.length(); i++) {
                     post = jsonPosts.getJSONObject(i);
 
@@ -68,27 +66,23 @@ public class PostUtils {
                     postedAgo = post.getString(Constants.KEY_POSTED_AGO);
                     numComments = post.getString(Constants.KEY_NUM_COMMENTS);
 
-                    mDbHelper.createPost(index, postId, title, url, prettyUrl,
-                            points, author, postedAgo, numComments);
+                    cursor = null;
+                    if (!postId.isEmpty()) {
+                        cursor = mDbHelper.fetchPostByHNId(postId);
+                    }
 
-                    // TODO: bring this code back to life.
-//                    cursor = null;
-//                    if (!postId.isEmpty()) {
-//                        cursor = mDbHelper.fetchPostByHNId(postId);
-//                    }
-//
-//                    if (cursor != null && cursor.getCount() > 0) {
-//                        int idColIndex = cursor.getColumnIndex("_id");
-//                        long rowId = cursor.getLong(idColIndex);
-//                        mDbHelper.updatePost(rowId, index, postId, title, url, prettyUrl,
-//                                points, author, postedAgo, numComments);
-//                    } else {
-//                        mDbHelper.createPost(index, postId, title, url, prettyUrl,
-//                                points, author, postedAgo, numComments);
-//                    }
+                    if (cursor != null && cursor.getCount() > 0) {
+                        int idColIndex = cursor.getColumnIndex("_id");
+                        long rowId = cursor.getLong(idColIndex);
+                        mDbHelper.updatePost(rowId, index, postId, title, url, prettyUrl,
+                                points, author, postedAgo, numComments);
+                    } else {
+                        mDbHelper.createPost(index, postId, title, url, prettyUrl,
+                                points, author, postedAgo, numComments);
+                    }
                 }
 
-                // TODO: bring this line back to life.
+                // TODO: bring this line back to life, but in a proper way.
                 // mDbHelper.deleteOldPosts();
 
             } catch (JSONException e) {
@@ -168,7 +162,7 @@ public class PostUtils {
      */
     public String getPostUrl(long id) {
         Cursor cursor = mDbHelper.fetchPost(id);
-        int urlColIndex = cursor.getColumnIndex("url");
+        int urlColIndex = cursor.getColumnIndex(Constants.KEY_URL);
         return cursor.getString(urlColIndex);
     }
 
