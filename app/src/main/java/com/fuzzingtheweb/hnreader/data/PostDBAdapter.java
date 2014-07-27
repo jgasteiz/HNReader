@@ -206,7 +206,7 @@ public class PostDBAdapter {
                                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                                 KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
                                 KEY_NUM_COMMENTS},
-                        KEY_POST_ID + "=" + postId, null,
+                        KEY_POST_ID + "='" + postId + "'", null,
                         null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
