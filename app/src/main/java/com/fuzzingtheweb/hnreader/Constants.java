@@ -19,4 +19,7 @@ public final class Constants {
     public static final String JSON_KEY_ITEMS = "links";
 
     public static final int LIMIT_ITEMS = 30;
+
+    public static final int ALL_ITEMS = 1;
+    public static final int FAVOURITE_ITEMS = 2;
 }

@@ -1,5 +1,6 @@
 package com.fuzzingtheweb.hnreader;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,11 +24,18 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 
-public class MainActivity extends FragmentActivity implements PostFragment.Callbacks {
+public class MainActivity
+        extends FragmentActivity
+        implements PostFragment.Callbacks, NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private Util mUtil;
+
+    /**
+     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
+     */
+    private CharSequence mTitle;
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -33,13 +43,30 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
      */
     private boolean mTwoPane;
 
+    private int mActiveSection = 1;
+
+    /**
+     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     */
+    private NavigationDrawerFragment mNavigationDrawerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         mUtil = new Util(this);
 
+        mTitle = getTitle();
+
         setContentView(R.layout.activity_main);
+
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(
+                R.id.navigation_drawer,
+                (DrawerLayout) findViewById(R.id.drawer_layout));
 
         if (findViewById(R.id.web_view) != null) {
             // The detail container view will be present only in the
@@ -51,7 +78,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((PostFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.post_list))
+                    .findFragmentById(R.id.container))
                     .setActivateOnItemClick(true);
         }
     }
@@ -59,6 +86,14 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+            // Only show items in the action bar relevant to this screen
+            // if the drawer is not showing. Otherwise, let the drawer
+            // decide what to show in the action bar.
+            getMenuInflater().inflate(R.menu.main, menu);
+            restoreActionBar();
+            return true;
+        }
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -81,7 +116,7 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
 
         switch (item.getItemId()) {
             case PostFragment.FAVORITE_ID:
-                mUtil.markAsFavorite(item.getItemId());
+                mUtil.markAsFavorite(info.id);
                 Toast.makeText(this, "Post marked as favourite", Toast.LENGTH_LONG).show();
                 break;
             case PostFragment.SHARE_ID:
@@ -122,7 +157,9 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
     }
 
     public void onEmptyList() {
-        refreshData();
+        if (mActiveSection == Constants.ALL_ITEMS) {
+            refreshData();
+        }
     }
 
     /**
@@ -171,8 +208,37 @@ public class MainActivity extends FragmentActivity implements PostFragment.Callb
      * Tell the PostFragment to reload its listview.
      */
     private void reloadPostFragment() {
-        PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list);
-        fragment.populateListView();
+        PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        fragment.populateListView(mActiveSection);
+    }
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PostFragment.newInstance(position + 1))
+                .commit();
+    }
+
+    public void onSectionAttached(int number) {
+        switch (number) {
+            case Constants.ALL_ITEMS:
+                mTitle = "All items";
+                mActiveSection = Constants.ALL_ITEMS;
+                break;
+            case Constants.FAVOURITE_ITEMS:
+                mTitle = "Favourite items";
+                mActiveSection = Constants.FAVOURITE_ITEMS;
+                break;
+        }
+    }
+
+    public void restoreActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(mTitle);
     }
 
     /**

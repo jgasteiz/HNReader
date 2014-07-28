@@ -31,6 +31,24 @@ public class PostFragment extends ListFragment {
     public static final int SHARE_ID = Menu.FIRST + 2;
 
     /**
+     * The fragment argument representing the section number for this
+     * fragment.
+     */
+    private static final String ARG_SECTION_NUMBER = "section_number";
+
+    /**
+     * Returns a new instance of this fragment for the given section
+     * number.
+     */
+    public static PostFragment newInstance(int sectionNumber) {
+        PostFragment fragment = new PostFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
@@ -98,7 +116,7 @@ public class PostFragment extends ListFragment {
 
         mRootView = inflater.inflate(R.layout.fragment_post_list, container, false);
 
-        populateListView();
+        populateListView(getArguments().getInt(ARG_SECTION_NUMBER));
 
         return mRootView;
     }
@@ -112,6 +130,9 @@ public class PostFragment extends ListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(ARG_SECTION_NUMBER));
 
         // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
@@ -153,8 +174,13 @@ public class PostFragment extends ListFragment {
     /**
      * Populate the main list view with the database content.
      */
-    public void populateListView() {
-        Cursor postsCursor = mDbHelper.fetchAllPosts();
+    public void populateListView(int sectionNumber) {
+        Cursor postsCursor;
+        if (sectionNumber == Constants.FAVOURITE_ITEMS) {
+            postsCursor = mDbHelper.fetchFavoritePosts();
+        } else {
+            postsCursor = mDbHelper.fetchAllPosts();
+        }
         mActivity.startManagingCursor(postsCursor);
 
         String[] keys = {Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL,

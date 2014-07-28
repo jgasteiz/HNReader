@@ -14,8 +14,15 @@
     <string name="action_refresh">Refresh</string>
     <string name="open_browser">Open in browser</string>
     <string name="menu_favorite">Mark as favourite</string>
+
     <string name="action_new_main">New Main</string>
     <string name="action_main">Main</string>
     <string name="webview_empty_message">Tap on a list item to view it here</string>
+
+    <string name="drawer_all_items">All items</string>
+    <string name="drawer_favorites">Favourites</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
 </resources>

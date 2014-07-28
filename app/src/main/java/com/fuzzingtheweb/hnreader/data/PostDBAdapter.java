@@ -24,7 +24,7 @@ public class PostDBAdapter {
     public final String KEY_POSTED_AGO = "posted_ago";
     public final String KEY_NUM_COMMENTS = "comments";
     public final String KEY_READ = "isRead";
-    public final String KEY_FAVORITE = "isRead";
+    public final String KEY_FAVORITE = "isFavourite";
 
     private static final String TAG = "PostDbAdapter";
     private DatabaseHelper mDbHelper;
@@ -38,11 +38,11 @@ public class PostDBAdapter {
                     "postIndex integer not null, postId text not null, title text not null, " +
                     "url text not null, prettyUrl text not null, score text not null, " +
                     "author text not null, posted_ago text not null, comments text not null, " +
-                    "isRead boolean not null, favorite boolean);";
+                    "isRead boolean not null, isFavourite boolean not null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 7;
 
     private final Context mCtx;
 
@@ -123,6 +123,7 @@ public class PostDBAdapter {
         initialValues.put(KEY_POSTED_AGO, postedAgo);
         initialValues.put(KEY_NUM_COMMENTS, numComments);
         initialValues.put(KEY_READ, false);
+        initialValues.put(KEY_FAVORITE, false);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -172,8 +173,8 @@ public class PostDBAdapter {
         return mDb.query(DATABASE_TABLE, new String[] {
                         KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                         KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
-                        KEY_NUM_COMMENTS, KEY_READ},
-                        KEY_FAVORITE + " = TRUE",
+                        KEY_NUM_COMMENTS, KEY_READ, KEY_FAVORITE},
+                        KEY_FAVORITE + " = 1",
                         null, null, null, null, null);
     }
 
