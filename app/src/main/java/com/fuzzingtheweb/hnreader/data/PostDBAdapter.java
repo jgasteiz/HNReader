@@ -10,6 +10,10 @@ import android.util.Log;
 
 import com.fuzzingtheweb.hnreader.Constants;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class PostDBAdapter {
 
@@ -25,6 +29,7 @@ public class PostDBAdapter {
     public final String KEY_NUM_COMMENTS = "comments";
     public final String KEY_READ = "isRead";
     public final String KEY_FAVORITE = "isFavourite";
+    public final String KEY_TIMESTAMP = "timestamp";
 
     private static final String TAG = "PostDbAdapter";
     private DatabaseHelper mDbHelper;
@@ -38,11 +43,11 @@ public class PostDBAdapter {
                     "postIndex integer not null, postId text not null, title text not null, " +
                     "url text not null, prettyUrl text not null, score text not null, " +
                     "author text not null, posted_ago text not null, comments text not null, " +
-                    "isRead boolean not null, isFavourite boolean not null);";
+                    "isRead boolean not null, isFavourite boolean not null, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     private final Context mCtx;
 
@@ -172,10 +177,9 @@ public class PostDBAdapter {
     public Cursor fetchFavoritePosts() {
         return mDb.query(DATABASE_TABLE, new String[] {
                         KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
-                        KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
-                        KEY_NUM_COMMENTS, KEY_READ, KEY_FAVORITE},
+                        KEY_PRETTY_URL, KEY_FAVORITE},
                         KEY_FAVORITE + " = 1",
-                        null, null, null, null, null);
+                        null, null, null, KEY_TIMESTAMP + " DESC", null);
     }
 
     /**
@@ -249,12 +253,20 @@ public class PostDBAdapter {
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
 
-    public boolean markAsFavorite(long rowId) {
+    public boolean markAsFavorite(long rowId, boolean favorite) {
 
         ContentValues args = new ContentValues();
-        args.put(KEY_FAVORITE, true);
+        args.put(KEY_FAVORITE, favorite);
+        args.put(KEY_TIMESTAMP, getDateTime());
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+    }
+
+    private String getDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 
 }

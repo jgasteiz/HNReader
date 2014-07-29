@@ -187,6 +187,31 @@ public class Util {
         return shareIntent;
     }
 
+
+    public String[] getAllPostsKeys() {
+        String[] keys = { Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL,
+                Constants.KEY_SCORE, Constants.KEY_AUTHOR, Constants.KEY_POSTED_AGO,
+                Constants.KEY_NUM_COMMENTS };
+        return keys;
+    }
+
+    public String[] getFavoritePostsKeys() {
+        String[] keys = { Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL };
+        return keys;
+    }
+
+    public int[] getAllPostsIds() {
+        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
+                R.id.item_score, R.id.item_author, R.id.item_posted_ago,
+                R.id.item_num_comments };
+        return ids;
+    }
+
+    public int[] getFavoritePostsIds() {
+        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url };
+        return ids;
+    }
+
     /**
      * Local method for logging an exception.
      *
@@ -200,7 +225,15 @@ public class Util {
         mDbHelper.markAsRead(id);
     }
 
-    public void markAsFavorite(long id) {
-        mDbHelper.markAsFavorite(id);
+    public void markAsFavorite(long id, boolean favorite) {
+        mDbHelper.markAsFavorite(id, favorite);
+    }
+
+    public Cursor fetchAllPosts() {
+        return mDbHelper.fetchAllPosts();
+    }
+
+    public Cursor fetchFavoritePosts() {
+        return mDbHelper.fetchFavoritePosts();
     }
 }

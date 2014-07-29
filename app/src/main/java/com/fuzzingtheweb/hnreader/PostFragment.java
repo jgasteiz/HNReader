@@ -8,12 +8,12 @@ import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 import com.fuzzingtheweb.hnreader.data.PostDBAdapter;
 
@@ -23,12 +23,14 @@ import com.fuzzingtheweb.hnreader.data.PostDBAdapter;
 public class PostFragment extends ListFragment {
 
     private View mRootView;
-    private PostDBAdapter mDbHelper;
     private Activity mActivity;
+    private Util mUtil;
+    private int mSectionNumber;
 
     public static final int FAVORITE_ID = Menu.FIRST;
     public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
     public static final int SHARE_ID = Menu.FIRST + 2;
+    public static final int REMOVE_FAVORITE_ID = Menu.FIRST + 3;
 
     /**
      * The fragment argument representing the section number for this
@@ -52,7 +54,7 @@ public class PostFragment extends ListFragment {
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
-    private Callbacks mCallbacks = sDummyCallbacks;
+    private Callbacks mCallbacks = sPostCallbacks;
 
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
@@ -72,21 +74,17 @@ public class PostFragment extends ListFragment {
      * selections.
      */
     public interface Callbacks {
-        /**
-         * Callback for when an item has been selected.
-         */
         public void onItemSelected(MenuItem item);
-
         public void onItemClick(long id);
-
         void onEmptyList();
+        void onRefreshPosts();
     }
 
     /**
      * A dummy implementation of the {@link Callbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
-    private static Callbacks sDummyCallbacks = new Callbacks() {
+    private static Callbacks sPostCallbacks = new Callbacks() {
         @Override
         public void onItemSelected(MenuItem item) {
         }
@@ -100,24 +98,31 @@ public class PostFragment extends ListFragment {
         public void onEmptyList() {
 
         }
+
+        @Override
+        public void onRefreshPosts() {
+
+        }
     };
 
     public PostFragment() {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        mDbHelper = new PostDBAdapter(getActivity());
-        mDbHelper.open();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         mActivity = getActivity();
+        mUtil = new Util(mActivity);
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_post_list, container, false);
 
-        populateListView(getArguments().getInt(ARG_SECTION_NUMBER));
-
+        populateListView();
         return mRootView;
     }
 
@@ -131,8 +136,8 @@ public class PostFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        ((MainActivity) activity).onSectionAttached(
-                getArguments().getInt(ARG_SECTION_NUMBER));
+        mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+        ((MainActivity) activity).onSectionAttached(mSectionNumber);
 
         // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
@@ -147,7 +152,25 @@ public class PostFragment extends ListFragment {
         super.onDetach();
 
         // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = sDummyCallbacks;
+        mCallbacks = sPostCallbacks;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (mSectionNumber == Constants.ALL_ITEMS) {
+            inflater.inflate(R.menu.post_fragment, menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                mCallbacks.onRefreshPosts();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -159,7 +182,11 @@ public class PostFragment extends ListFragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
+        if (mSectionNumber == Constants.ALL_ITEMS) {
+            menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
+        } else {
+            menu.add(0, REMOVE_FAVORITE_ID, 0, R.string.menu_remove_favorite);
+        }
         menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
         menu.add(0, SHARE_ID, 0, R.string.action_share);
     }
@@ -174,27 +201,30 @@ public class PostFragment extends ListFragment {
     /**
      * Populate the main list view with the database content.
      */
-    public void populateListView(int sectionNumber) {
+    public void populateListView() {
         Cursor postsCursor;
-        if (sectionNumber == Constants.FAVOURITE_ITEMS) {
-            postsCursor = mDbHelper.fetchFavoritePosts();
+        int postItemLayout;
+        String[] keys;
+        int[] ids;
+
+        // Depending on the section we are in, show a different item layout
+        if (mSectionNumber == Constants.ALL_ITEMS) {
+            postsCursor = mUtil.fetchAllPosts();
+            keys = mUtil.getAllPostsKeys();
+            ids = mUtil.getAllPostsIds();
+            postItemLayout = R.layout.post_item;
         } else {
-            postsCursor = mDbHelper.fetchAllPosts();
+            postsCursor = mUtil.fetchFavoritePosts();
+            keys = mUtil.getFavoritePostsKeys();
+            ids = mUtil.getFavoritePostsIds();
+            postItemLayout = R.layout.post_fav_item;
         }
         mActivity.startManagingCursor(postsCursor);
-
-        String[] keys = {Constants.KEY_INDEX, Constants.KEY_TITLE, Constants.KEY_PRETTY_URL,
-                Constants.KEY_SCORE, Constants.KEY_AUTHOR, Constants.KEY_POSTED_AGO,
-                Constants.KEY_NUM_COMMENTS};
-
-        int[] ids = { R.id.item_index, R.id.item_title, R.id.item_url,
-                R.id.item_score, R.id.item_author, R.id.item_posted_ago,
-                R.id.item_num_comments };
 
         // TODO: use custom adapter
         // http://stackoverflow.com/questions/10828657/how-to-mark-views-in-a-listview
         SimpleCursorAdapter posts =
-                new SimpleCursorAdapter(mActivity, R.layout.post_item, postsCursor, keys, ids);
+                new SimpleCursorAdapter(mActivity, postItemLayout, postsCursor, keys, ids);
 
         ListView listView = (ListView) mRootView.findViewById(android.R.id.list);
         listView.setAdapter(posts);
@@ -202,18 +232,6 @@ public class PostFragment extends ListFragment {
         if (posts.isEmpty()) {
             mCallbacks.onEmptyList();
         }
-    }
-
-    /**
-     * Given an item id, return the url of the item.
-     *
-     * @param id in the database for the selected item.
-     * @return the item url
-     */
-    public String getPostUrl(long id) {
-        Cursor cursor = mDbHelper.fetchPost(id);
-        int urlColIndex = cursor.getColumnIndex("url");
-        return cursor.getString(urlColIndex);
     }
 
 }

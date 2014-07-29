@@ -90,24 +90,12 @@ public class MainActivity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
         }
-        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                refreshData();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onItemSelected(MenuItem item) {
@@ -116,8 +104,13 @@ public class MainActivity
 
         switch (item.getItemId()) {
             case PostFragment.FAVORITE_ID:
-                mUtil.markAsFavorite(info.id);
+                mUtil.markAsFavorite(info.id, true);
                 Toast.makeText(this, "Post marked as favourite", Toast.LENGTH_LONG).show();
+                break;
+            case PostFragment.REMOVE_FAVORITE_ID:
+                mUtil.markAsFavorite(info.id, false);
+                reloadPostFragment();
+                Toast.makeText(this, "Post removed from favourites", Toast.LENGTH_LONG).show();
                 break;
             case PostFragment.SHARE_ID:
                 Intent shareIntent = mUtil.getShareIntent(postUrl);
@@ -158,14 +151,14 @@ public class MainActivity
 
     public void onEmptyList() {
         if (mActiveSection == Constants.ALL_ITEMS) {
-            refreshData();
+            onRefreshPosts();
         }
     }
 
     /**
      * If the network is available, refresh the posts.
      */
-    private void refreshData() {
+    public void onRefreshPosts() {
         if (isNetworkAvailable()) {
             setProgressBarIndeterminateVisibility(true);
             FetchPostsTask getBlogPostsTask = new FetchPostsTask();
@@ -209,7 +202,7 @@ public class MainActivity
      */
     private void reloadPostFragment() {
         PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        fragment.populateListView(mActiveSection);
+        fragment.populateListView();
     }
 
     @Override
