@@ -1,26 +1,8 @@
-<!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/container"
+    android:name="com.fuzzingtheweb.hnreader.PostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyActivity">
-
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
-    <FrameLayout
-        android:id="@+id/container"
-        android:name="com.fuzzingtheweb.hnreader.PostFragment"
-        tools:context="com.fuzzingtheweb.hnreader.MainActivity"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <fragment android:id="@+id/navigation_drawer"
-        android:layout_width="@dimen/navigation_drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:name="com.fuzzingtheweb.hnreader.NavigationDrawerFragment"
-        tools:layout="@layout/fragment_navigation_drawer" />
-
-</android.support.v4.widget.DrawerLayout>
+    tools:context="com.fuzzingtheweb.hnreader.MainActivity"
+    tools:layout="@android:layout/list_content" />

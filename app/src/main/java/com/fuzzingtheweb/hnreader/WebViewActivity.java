@@ -3,11 +3,12 @@ package com.fuzzingtheweb.hnreader;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class WebViewActivity extends FragmentActivity {
+public class WebViewActivity extends ActionBarActivity {
 
     protected String mUrl;
     private Util mUtil;
@@ -24,6 +25,9 @@ public class WebViewActivity extends FragmentActivity {
 
         mUtil = new Util(this);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+
         // Create the fragment
         Bundle arguments = new Bundle();
         arguments.putString(WebViewFragment.KEY_URL, mUrl);
@@ -36,9 +40,9 @@ public class WebViewActivity extends FragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu items for use in the action bar
         getMenuInflater().inflate(R.menu.web_view, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

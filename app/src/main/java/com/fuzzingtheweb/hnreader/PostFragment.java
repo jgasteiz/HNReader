@@ -2,20 +2,16 @@ package com.fuzzingtheweb.hnreader;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-
-import com.fuzzingtheweb.hnreader.data.PostDBAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -136,9 +132,6 @@ public class PostFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-        ((MainActivity) activity).onSectionAttached(mSectionNumber);
-
         // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
@@ -153,13 +146,6 @@ public class PostFragment extends ListFragment {
 
         // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = sPostCallbacks;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (mSectionNumber == Constants.ALL_ITEMS) {
-            inflater.inflate(R.menu.post_fragment, menu);
-        }
     }
 
     @Override
@@ -182,11 +168,6 @@ public class PostFragment extends ListFragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (mSectionNumber == Constants.ALL_ITEMS) {
-            menu.add(0, FAVORITE_ID, 0, R.string.menu_favorite);
-        } else {
-            menu.add(0, REMOVE_FAVORITE_ID, 0, R.string.menu_remove_favorite);
-        }
         menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
         menu.add(0, SHARE_ID, 0, R.string.action_share);
     }
@@ -207,18 +188,10 @@ public class PostFragment extends ListFragment {
         String[] keys;
         int[] ids;
 
-        // Depending on the section we are in, show a different item layout
-        if (mSectionNumber == Constants.ALL_ITEMS) {
-            postsCursor = mUtil.fetchAllPosts();
-            keys = mUtil.getAllPostsKeys();
-            ids = mUtil.getAllPostsIds();
-            postItemLayout = R.layout.post_item;
-        } else {
-            postsCursor = mUtil.fetchFavoritePosts();
-            keys = mUtil.getFavoritePostsKeys();
-            ids = mUtil.getFavoritePostsIds();
-            postItemLayout = R.layout.post_fav_item;
-        }
+        postsCursor = mUtil.fetchAllPosts();
+        keys = mUtil.getAllPostsKeys();
+        ids = mUtil.getAllPostsIds();
+        postItemLayout = R.layout.post_item;
         mActivity.startManagingCursor(postsCursor);
 
         // TODO: use custom adapter

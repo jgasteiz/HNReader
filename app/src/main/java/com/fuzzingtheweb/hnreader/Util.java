@@ -85,7 +85,7 @@ public class Util {
                 }
 
                 // TODO: bring this line back to life, but in a proper way.
-                // mDbHelper.deleteOldPosts();
+                mDbHelper.deleteOldPosts();
 
             } catch (JSONException e) {
                 logException(e);

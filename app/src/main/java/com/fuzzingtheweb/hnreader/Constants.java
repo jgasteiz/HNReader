@@ -12,7 +12,6 @@ public final class Constants {
     public static final String KEY_AUTHOR = "author";
     public static final String KEY_POSTED_AGO = "posted_ago";
     public static final String KEY_NUM_COMMENTS = "comments";
-    public static final String KEY_READ = "isRead";
 
     public static final String API_URL = "http://api-hnreader.rhcloud.com/";
 
@@ -21,5 +20,4 @@ public final class Constants {
     public static final int LIMIT_ITEMS = 30;
 
     public static final int ALL_ITEMS = 1;
-    public static final int FAVOURITE_ITEMS = 2;
 }
