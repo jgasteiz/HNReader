@@ -1,27 +1,7 @@
 <resources>
-
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
-
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <!--<item name="android:windowNoTitle">true</item> &lt;!&ndash; Hides the Action Bar &ndash;&gt;-->
-        <!--<item name="android:windowFullscreen">true</item> &lt;!&ndash; Hides the status bar &ndash;&gt;-->
-
-        <!-- colorPrimary is used for the default action bar background -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#FF5722</item>
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#DD2C00</item>
-        <!-- colorAccent is used as the default value for colorControlActivated,
-             which is used to tint widgets -->
+        <item name="colorPrimaryDark">#D84315</item>
         <item name="colorAccent">#26C6DA</item>
-
     </style>
-
 </resources>

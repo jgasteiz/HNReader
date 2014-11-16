@@ -104,6 +104,13 @@ public class PostDBAdapter {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_INDEX, index);
         initialValues.put(KEY_POST_ID, postId);
+        initialValues.put(KEY_TITLE, "");
+        initialValues.put(KEY_URL, "");
+        initialValues.put(KEY_PRETTY_URL, "");
+        initialValues.put(KEY_SCORE, 0);
+        initialValues.put(KEY_AUTHOR, "");
+        initialValues.put(KEY_POSTED_AGO, 0);
+        initialValues.put(KEY_NUM_COMMENTS, 0);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }

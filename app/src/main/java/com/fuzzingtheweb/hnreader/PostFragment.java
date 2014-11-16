@@ -152,6 +152,10 @@ public class PostFragment extends ListFragment {
             case R.id.action_refresh:
                 mCallbacks.onRefreshPosts();
                 break;
+//            case android.R.id.home:
+//                Intent home = new Intent(this, MainActivity.class);
+//                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                startActivity(home);
         }
 
         return super.onOptionsItemSelected(item);

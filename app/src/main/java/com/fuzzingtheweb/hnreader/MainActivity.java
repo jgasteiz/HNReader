@@ -100,8 +100,9 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
         }
     }
 
+    @Override
     public void onEmptyList() {
-        onRefreshPosts();
+
     }
 
     /**
