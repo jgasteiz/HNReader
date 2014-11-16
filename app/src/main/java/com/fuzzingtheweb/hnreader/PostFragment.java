@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -181,6 +182,7 @@ public class PostFragment extends ListFragment {
      * Populate the main list view with the database content.
      */
     public void populateListView() {
+        Log.v(LOG_TAG, "Populating list view");
         Cursor postsCursor;
         int postItemLayout;
         String[] keys;

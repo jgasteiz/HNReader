@@ -110,10 +110,11 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
      */
     public void onRefreshPosts() {
         if (isNetworkAvailable()) {
-            setProgressBarIndeterminateVisibility(true);
-            mUtil.refreshPosts((PostFragment) getSupportFragmentManager().findFragmentById(R.id.container));
+//            setProgressBarIndeterminateVisibility(true);
+            mUtil.setFragment((PostFragment) getSupportFragmentManager().findFragmentById(R.id.container));
+            mUtil.refreshPosts();
         } else {
-            setProgressBarIndeterminateVisibility(false);
+//            setProgressBarIndeterminateVisibility(false);
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
     }

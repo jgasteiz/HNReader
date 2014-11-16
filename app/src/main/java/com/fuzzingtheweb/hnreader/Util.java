@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -19,10 +20,15 @@ import java.util.Iterator;
 public class Util {
 
     private PostDBAdapter mDbHelper;
+    private static PostFragment mFragment;
 
     public Util(Context context) {
         mDbHelper = new PostDBAdapter(context);
         mDbHelper.open();
+    }
+
+    public void setFragment(PostFragment fragment) {
+        mFragment = fragment;
     }
 
     public void createPost(Post post) {
@@ -36,18 +42,30 @@ public class Util {
         }
 
         mDbHelper.updatePost(post.getId(),
-            post.getTitle(),
-            post.getUrl(),
-            post.getUrl(),
-            post.getScore(),
-            post.getBy(),
-            post.getTime(),
-            numComments);
+                post.getTitle(),
+                post.getUrl(),
+                post.getUrl(),
+                post.getScore(),
+                post.getBy(),
+                post.getTime(),
+                numComments);
     }
 
-    public void refreshPosts(final PostFragment fragment) {
+    public static void refreshList() {
+        mFragment.populateListView();
+    }
+
+    public void refreshPosts() {
 
         mDbHelper.deleteAllPosts();
+
+        Callback callback = new Callback() {
+            @Override
+            public void call(Object arg) {
+                refreshList();
+            }
+        };
+        final Debouncer debouncer = new Debouncer(callback, 1000);
 
         Firebase topStoriesRef = new Firebase("https://hacker-news.firebaseio.com/v0/topstories");
         Query queryRef = topStoriesRef.limitToFirst(30);
@@ -57,8 +75,6 @@ public class Util {
             public void onDataChange(DataSnapshot snapshot) {
                 ArrayList children = (ArrayList) snapshot.getValue();
                 System.out.println("Data changed!");
-
-                final ArrayList<Post> postList = new ArrayList<Post>();
 
                 int index = 1;
                 for(Iterator<Long> i = children.iterator(); i.hasNext(); ) {
@@ -87,9 +103,11 @@ public class Util {
                             post.setUrl((String) item.get("url"));
 
                             updatePost(post);
-                            postList.add(post);
 
-                            fragment.populateListView();
+                            Log.v("UTIL", "calling the debouncer!");
+                            // TODO: make this debounced.
+//                            debouncer.call("populateListView");
+                            mFragment.populateListView();
                         }
 
                         @Override
