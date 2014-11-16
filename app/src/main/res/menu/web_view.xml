@@ -3,14 +3,15 @@
 
     <item
         android:id="@+id/action_share"
-        android:icon="@drawable/ic_share_black_48dp"
+        android:icon="@drawable/ic_share_white_48dp"
         hnreader:showAsAction="ifRoom"
         android:title="@string/action_share">
     </item>
 
     <item
         android:id="@+id/open_browser"
-        android:orderInCategory="100"
+        android:icon="@drawable/ic_public_white_48dp"
+        hnreader:showAsAction="ifRoom"
         android:title="@string/open_browser">
     </item>
 

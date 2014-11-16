@@ -6,16 +6,17 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/item_index"
             android:textSize="16sp"
-            android:textColor="#666d74"
+            android:fontFamily="sans-serif-light"
+            android:textColor="#757575"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1"/>
@@ -29,40 +30,50 @@
             <TextView
                 android:id="@+id/item_title"
                 android:textSize="16sp"
-                android:textColor="#222222"
+                android:textColor="#000000"
+                android:fontFamily="sans-serif"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="This is some hacker news cool title" />
 
             <TextView
                 android:id="@+id/item_url"
-                android:textColor="#003d80"
+                android:textSize="14sp"
+                android:paddingBottom="2dp"
+                android:paddingTop="2dp"
+                android:textColor="#546E7A"
                 android:layout_width="match_parent"
+                android:fontFamily="sans-serif"
                 android:layout_height="match_parent"
                 android:text="journal.stuffwithstuff.com" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
+                android:paddingBottom="2dp"
+                android:paddingTop="2dp"
                 android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/item_score"
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="32" />
                 <TextView
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" points" />
 
                 <TextView
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_marginStart="10sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -70,7 +81,8 @@
                 <TextView
                     android:id="@+id/item_author"
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="someone" />
@@ -78,7 +90,8 @@
                 <TextView
                     android:id="@+id/item_posted_ago"
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_marginStart="10sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -87,14 +100,16 @@
                 <TextView
                     android:id="@+id/item_num_comments"
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_marginStart="10sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="70" />
                 <TextView
                     android:textSize="12sp"
-                    android:textColor="#666d74"
+                    android:textColor="#78909C"
+                    android:fontFamily="sans-serif-light"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" comments" />

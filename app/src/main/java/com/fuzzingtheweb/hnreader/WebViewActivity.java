@@ -18,6 +18,8 @@ public class WebViewActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Create an intent for displaying the url in a webView
         Intent intent = getIntent();
         Uri blogUri = intent.getData();
