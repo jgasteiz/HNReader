@@ -1,23 +1,19 @@
 package com.fuzzingtheweb.hnreader;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONObject;
+import com.firebase.client.Firebase;
 
 
 public class MainActivity extends ActionBarActivity implements PostFragment.Callbacks {
@@ -35,6 +31,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
         mUtil = new Util(this);
 
@@ -61,7 +58,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
         getMenuInflater().inflate(R.menu.post_fragment, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     public void onItemSelected(MenuItem item) {
@@ -102,8 +98,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
             intent.setData(Uri.parse(postUrl));
             startActivity(intent);
         }
-
-        mUtil.markAsRead(id);
     }
 
     public void onEmptyList() {
@@ -116,8 +110,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
     public void onRefreshPosts() {
         if (isNetworkAvailable()) {
             setProgressBarIndeterminateVisibility(true);
-            FetchPostsTask getBlogPostsTask = new FetchPostsTask();
-            getBlogPostsTask.execute();
+            mUtil.refreshPosts((PostFragment) getSupportFragmentManager().findFragmentById(R.id.container));
         } else {
             setProgressBarIndeterminateVisibility(false);
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
@@ -134,52 +127,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
-    }
-
-    /**
-     * Shows an notification in the screen for an error related to non existing items.
-     */
-    private void updateDisplayForError() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.error_title));
-        builder.setMessage(getString(R.string.error_message));
-        builder.setPositiveButton(android.R.string.ok, null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        ListView listView = (ListView) findViewById(android.R.id.list);
-        TextView emptyTextView = (TextView) listView.getEmptyView();
-        emptyTextView.setText(getString(R.string.no_items));
-    }
-
-    /**
-     * Tell the PostFragment to reload its listview.
-     */
-    private void reloadPostFragment() {
-        PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        fragment.populateListView();
-    }
-
-    /**
-     * Asynctask for making a call to the API.
-     */
-    private class FetchPostsTask extends AsyncTask<Object, Void, JSONObject> {
-
-        @Override
-        protected JSONObject doInBackground(Object[] params) {
-            return mUtil.getAPIResponse();
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject result) {
-            setProgressBarIndeterminateVisibility(false);
-            boolean response = mUtil.handleAPIResponse(result);
-            if (response) {
-                reloadPostFragment();
-            } else {
-                updateDisplayForError();
-            }
-        }
     }
 
 }

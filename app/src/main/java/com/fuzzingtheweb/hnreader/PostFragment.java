@@ -21,12 +21,10 @@ public class PostFragment extends ListFragment {
     private View mRootView;
     private Activity mActivity;
     private Util mUtil;
-    private int mSectionNumber;
 
-    public static final int FAVORITE_ID = Menu.FIRST;
     public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
     public static final int SHARE_ID = Menu.FIRST + 2;
-    public static final int REMOVE_FAVORITE_ID = Menu.FIRST + 3;
+    private static final String LOG_TAG = PostFragment.class.getSimpleName();
 
     /**
      * The fragment argument representing the section number for this

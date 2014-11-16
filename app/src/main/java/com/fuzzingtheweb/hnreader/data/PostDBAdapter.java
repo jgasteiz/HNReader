@@ -10,10 +10,6 @@ import android.util.Log;
 
 import com.fuzzingtheweb.hnreader.Constants;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 
 public class PostDBAdapter {
 
@@ -27,9 +23,6 @@ public class PostDBAdapter {
     public final String KEY_AUTHOR = "author";
     public final String KEY_POSTED_AGO = "posted_ago";
     public final String KEY_NUM_COMMENTS = "comments";
-    public final String KEY_READ = "isRead";
-    public final String KEY_FAVORITE = "isFavourite";
-    public final String KEY_TIMESTAMP = "timestamp";
 
     private static final String TAG = "PostDbAdapter";
     private DatabaseHelper mDbHelper;
@@ -40,10 +33,9 @@ public class PostDBAdapter {
      */
     private static final String DATABASE_CREATE =
             "create table posts (_id integer primary key autoincrement, " +
-                    "postIndex integer not null, postId text not null, title text not null, " +
-                    "url text not null, prettyUrl text not null, score text not null, " +
-                    "author text not null, posted_ago text not null, comments text not null, " +
-                    "isRead boolean not null, isFavourite boolean not null, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);";
+                    "postIndex integer not null, postId integer null, title text null, " +
+                    "url text null, prettyUrl text null, score integer null, " +
+                    "author text null, posted_ago integer null, comments integer null);";
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
@@ -105,42 +97,15 @@ public class PostDBAdapter {
      * Create a new post using the given parameters.
      *
      * @param index of the post
-     * @param title of the post
-     * @param url of the post
-     * @param prettyUrl for showing in the post list
-     * @param score the post was given in HN
-     * @param author of the post in HN
-     * @param postedAgo relative time to when it was posted in HN
-     * @param numComments number of comments
+     * @param postId of the post
      * @return true if created, false otherwise
      */
-    public long createPost(int index, String postId, String title, String url,
-                           String prettyUrl, String score, String author,
-                           String postedAgo, String numComments) {
+    public long createPost(int index, long postId) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_INDEX, index);
         initialValues.put(KEY_POST_ID, postId);
-        initialValues.put(KEY_TITLE, title);
-        initialValues.put(KEY_URL, url);
-        initialValues.put(KEY_PRETTY_URL, prettyUrl);
-        initialValues.put(KEY_SCORE, score);
-        initialValues.put(KEY_AUTHOR, author);
-        initialValues.put(KEY_POSTED_AGO, postedAgo);
-        initialValues.put(KEY_NUM_COMMENTS, numComments);
-        initialValues.put(KEY_READ, false);
-        initialValues.put(KEY_FAVORITE, false);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
-    }
-
-    /**
-     * Delete the post with the given rowId
-     *
-     * @param rowId id of post to delete
-     * @return true if deleted, false otherwise
-     */
-    public boolean deletePost(long rowId) {
-        return mDb.delete(DATABASE_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
     }
 
     /**
@@ -152,10 +117,6 @@ public class PostDBAdapter {
         return mDb.delete(DATABASE_TABLE, null, null) > 0;
     }
 
-    public boolean deleteOldPosts() {
-        return mDb.delete(DATABASE_TABLE, KEY_INDEX + " > " + Constants.LIMIT_ITEMS, null) > 0;
-    }
-
     /**
      * Return a Cursor over the list of all posts in the database
      *
@@ -165,21 +126,8 @@ public class PostDBAdapter {
         return mDb.query(DATABASE_TABLE, new String[] {
                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
                 KEY_PRETTY_URL, KEY_SCORE, KEY_AUTHOR, KEY_POSTED_AGO,
-                KEY_NUM_COMMENTS, KEY_READ},
+                KEY_NUM_COMMENTS},
                 null, null, null, null, KEY_INDEX, Integer.toString(Constants.LIMIT_ITEMS));
-    }
-
-    /**
-     * Return a Cursor over the list of favorite posts in the database
-     *
-     * @return Cursor over all posts
-     */
-    public Cursor fetchFavoritePosts() {
-        return mDb.query(DATABASE_TABLE, new String[] {
-                        KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
-                        KEY_PRETTY_URL, KEY_FAVORITE},
-                        KEY_FAVORITE + " = 1",
-                        null, null, null, KEY_TIMESTAMP + " DESC", null);
     }
 
     /**
@@ -205,7 +153,6 @@ public class PostDBAdapter {
     }
 
     public Cursor fetchPostByHNId(String postId) throws SQLException {
-
         Cursor mCursor =
                 mDb.query(true, DATABASE_TABLE, new String[] {
                                 KEY_ROWID, KEY_INDEX, KEY_POST_ID, KEY_TITLE, KEY_URL,
@@ -219,13 +166,11 @@ public class PostDBAdapter {
         return mCursor;
     }
 
-    public boolean updatePost(long rowId, int index, String postId, String title, String url,
-                              String prettyUrl, String score, String author,
-                              String postedAgo, String numComments) {
+    public boolean updatePost(long postId, String title, String url,
+                              String prettyUrl, long score, String author,
+                              long postedAgo, long numComments) {
 
         ContentValues args = new ContentValues();
-        args.put(KEY_INDEX, index);
-        args.put(KEY_POST_ID, postId);
         args.put(KEY_TITLE, title);
         args.put(KEY_URL, url);
         args.put(KEY_PRETTY_URL, prettyUrl);
@@ -234,39 +179,7 @@ public class PostDBAdapter {
         args.put(KEY_POSTED_AGO, postedAgo);
         args.put(KEY_NUM_COMMENTS, numComments);
 
-        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
-    }
-
-    public boolean updateAllPostsIndexes() {
-
-        ContentValues args = new ContentValues();
-        args.put(KEY_INDEX, Constants.LIMIT_ITEMS + 1);
-
-        return mDb.update(DATABASE_TABLE, args, null, null) > 0;
-    }
-
-    public boolean markAsRead(long rowId) {
-
-        ContentValues args = new ContentValues();
-        args.put(KEY_READ, true);
-
-        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
-    }
-
-    public boolean markAsFavorite(long rowId, boolean favorite) {
-
-        ContentValues args = new ContentValues();
-        args.put(KEY_FAVORITE, favorite);
-        args.put(KEY_TIMESTAMP, getDateTime());
-
-        return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
-    }
-
-    private String getDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
+        return mDb.update(DATABASE_TABLE, args, KEY_POST_ID + "=" + postId, null) > 0;
     }
 
 }
