@@ -39,7 +39,7 @@ public class PostDBAdapter {
 
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "posts";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 10;
 
     private final Context mCtx;
 
