@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.fuzzingtheweb.hnreader"
+        minSdkVersion 19
         targetSdkVersion 21
         versionCode 10
         versionName "10.0"
