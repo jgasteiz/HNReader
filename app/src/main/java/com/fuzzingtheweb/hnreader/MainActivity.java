@@ -7,10 +7,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -33,7 +31,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
         super.onCreate(savedInstanceState);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
-        mUtil = new Util(this);
+        mUtil = new Util();
 
         if (findViewById(R.id.web_view) != null) {
             // The detail container view will be present only in the
@@ -60,10 +58,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
     }
 
     @Override
-    public void onItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        String postUrl = mUtil.getPostUrl(info.id);
-
+    public void onItemSelected(String postUrl, MenuItem item) {
         switch (item.getItemId()) {
             case PostFragment.SHARE_ID:
                 Intent shareIntent = mUtil.getShareIntent(postUrl);
@@ -81,9 +76,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
      * indicating that the post with the given url was selected.
      */
     @Override
-    public void onItemClick(long id) {
-        String postUrl = mUtil.getPostUrl(id);
-        Log.d(TAG, "Url to load: " + postUrl);
+    public void onItemClick(String postUrl) {
 
         if (mTwoPane) {
             Bundle arguments = new Bundle();
@@ -98,11 +91,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
             intent.setData(Uri.parse(postUrl));
             startActivity(intent);
         }
-    }
-
-    @Override
-    public void onEmptyList() {
-
     }
 
     /**

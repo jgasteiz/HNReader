@@ -61,58 +61,37 @@
                     android:fontFamily="sans-serif-light"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="32" />
-                <TextView
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" points" />
+                    android:text="32 points"/>
 
-                <TextView
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="10sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="by " />
                 <TextView
                     android:id="@+id/item_author"
                     android:textSize="12sp"
                     android:textColor="#78909C"
                     android:fontFamily="sans-serif-light"
+                    android:layout_marginStart="8sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="someone" />
+                    android:text="by someone"/>
 
                 <TextView
                     android:id="@+id/item_posted_ago"
                     android:textSize="12sp"
                     android:textColor="#78909C"
                     android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="10sp"
+                    android:layout_marginStart="8sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="8 hours ago" />
+                    android:text="8 hours ago"/>
 
                 <TextView
                     android:id="@+id/item_num_comments"
                     android:textSize="12sp"
                     android:textColor="#78909C"
                     android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="10sp"
+                    android:layout_marginStart="8sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="70" />
-                <TextView
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" comments" />
+                    android:text="70 comments"/>
 
             </LinearLayout>
 

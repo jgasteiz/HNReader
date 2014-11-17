@@ -1,9 +1,9 @@
 package com.fuzzingtheweb.hnreader;
 
 import android.app.Activity;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -11,20 +11,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class PostFragment extends ListFragment {
 
-    private View mRootView;
-    private Activity mActivity;
-    private Util mUtil;
     private ListView mListView;
     private RelativeLayout mProgressLayout;
+    private ArrayList<Post> mPostList;
 
     public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
     public static final int SHARE_ID = Menu.FIRST + 2;
@@ -72,9 +74,8 @@ public class PostFragment extends ListFragment {
      * selections.
      */
     public interface Callbacks {
-        public void onItemSelected(MenuItem item);
-        public void onItemClick(long id);
-        void onEmptyList();
+        public void onItemSelected(String postUrl, MenuItem item);
+        public void onItemClick(String postUrl);
         void onRefreshPosts();
     }
 
@@ -84,16 +85,11 @@ public class PostFragment extends ListFragment {
      */
     private static Callbacks sPostCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(MenuItem item) {
+        public void onItemSelected(String postUrl, MenuItem item) {
         }
 
         @Override
-        public void onItemClick(long id) {
-
-        }
-
-        @Override
-        public void onEmptyList() {
+        public void onItemClick(String postUrl) {
 
         }
 
@@ -110,21 +106,15 @@ public class PostFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        mActivity = getActivity();
-        mUtil = new Util(mActivity);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_post_list, container, false);
-
-        // Initialize listview and empty relative layout.
-        mListView = (ListView) mRootView.findViewById(android.R.id.list);
-        mProgressLayout = (RelativeLayout) mRootView.findViewById(android.R.id.empty);
-
-        return mRootView;
+        View rootView = inflater.inflate(R.layout.fragment_post_list, container, false);
+        mListView = (ListView) rootView.findViewById(android.R.id.list);
+        mProgressLayout = (RelativeLayout) rootView.findViewById(android.R.id.empty);
+        return rootView;
     }
 
     @Override
@@ -167,7 +157,8 @@ public class PostFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-        mCallbacks.onItemClick(id);
+        Post post = mPostList.get(position);
+        mCallbacks.onItemClick(post.getUrl());
     }
 
     @Override
@@ -180,7 +171,9 @@ public class PostFragment extends ListFragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         boolean result = super.onContextItemSelected(item);
-        mCallbacks.onItemSelected(item);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Post post = mPostList.get(info.position);
+        mCallbacks.onItemSelected(post.getUrl(), item);
         return result;
     }
 
@@ -189,36 +182,56 @@ public class PostFragment extends ListFragment {
         mProgressLayout.setVisibility(View.VISIBLE);
     }
 
-    public void showListView() {
-        mProgressLayout.setVisibility(View.GONE);
-        mListView.setVisibility(View.VISIBLE);
-    }
+    public void populateListView(final ArrayList<Post> postList) {
 
-    /**
-     * Populate the main list view with the database content.
-     */
-    public void populateListView() {
-        Log.v(LOG_TAG, "Populating list view");
-        Cursor postsCursor;
-        int postItemLayout;
-        String[] keys;
-        int[] ids;
+        mPostList = postList;
 
-        postsCursor = mUtil.fetchAllPosts();
-        keys = mUtil.getAllPostsKeys();
-        ids = mUtil.getAllPostsIds();
-        postItemLayout = R.layout.post_item;
-        mActivity.startManagingCursor(postsCursor);
+        ArrayAdapter<Post> postListAdapter = new ArrayAdapter<Post> (
+                getActivity(),
+                R.layout.post_item,
+                R.id.item_index,
+                postList)
+        {
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
 
-        // TODO: use custom adapter
-        // http://stackoverflow.com/questions/10828657/how-to-mark-views-in-a-listview
-        SimpleCursorAdapter posts =
-                new SimpleCursorAdapter(mActivity, postItemLayout, postsCursor, keys, ids);
+                Post post = postList.get(position);
 
-        mListView.setAdapter(posts);
+                ((TextView) view.findViewById(R.id.item_index))
+                        .setText(Integer.toString(post.getIndex()));
+                ((TextView) view.findViewById(R.id.item_title))
+                        .setText(post.getTitle());
+                ((TextView) view.findViewById(R.id.item_url))
+                        .setText(post.getUrl());
 
-        if (posts.isEmpty()) {
-            mCallbacks.onEmptyList();
+                ((TextView) view.findViewById(R.id.item_author))
+                        .setText("by " + post.getBy());
+                ((TextView) view.findViewById(R.id.item_score))
+                        .setText(post.getScore() + " points");
+
+                // Calculate postedAgo
+                CharSequence postedAgo = DateUtils.getRelativeTimeSpanString(
+                        post.getTime() * 1000,
+                        System.currentTimeMillis(),
+                        DateUtils.SECOND_IN_MILLIS);
+                ((TextView) view.findViewById(R.id.item_posted_ago))
+                        .setText(postedAgo);
+
+                int numComments = 0;
+                if (post.getKids() != null) {
+                    numComments = post.getKids().size();
+                }
+                ((TextView) view.findViewById(R.id.item_num_comments))
+                        .setText(numComments + " comments");
+
+                return view;
+            }
+        };
+
+        try {
+            mListView.setAdapter(postListAdapter);
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, e.getMessage());
         }
     }
 

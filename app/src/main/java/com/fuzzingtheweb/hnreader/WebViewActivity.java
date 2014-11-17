@@ -25,7 +25,7 @@ public class WebViewActivity extends ActionBarActivity {
         Uri blogUri = intent.getData();
         mUrl = blogUri.toString();
 
-        mUtil = new Util(this);
+        mUtil = new Util();
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
