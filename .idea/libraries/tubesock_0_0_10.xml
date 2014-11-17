@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="tubesock-0.0.10">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.firebase/tubesock/0.0.10/ddce2c65136c1de8000f8932d8b7ab16d5d336b9/tubesock-0.0.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.firebase/tubesock/0.0.10/9d2c9758f4709571d32ba8ff86885b283e8db5eb/tubesock-0.0.10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
