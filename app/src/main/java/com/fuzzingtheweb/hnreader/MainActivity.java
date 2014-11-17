@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((PostFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.container))
+                    .findFragmentById(R.id.post_list))
                     .setActivateOnItemClick(true);
         }
 
@@ -110,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
      */
     public void onRefreshPosts() {
         if (isNetworkAvailable()) {
-            mUtil.setFragment((PostFragment) getSupportFragmentManager().findFragmentById(R.id.container));
+            mUtil.setFragment((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
             mUtil.refreshPosts();
         } else {
             Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
