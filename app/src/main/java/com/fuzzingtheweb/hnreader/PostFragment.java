@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -22,6 +23,8 @@ public class PostFragment extends ListFragment {
     private View mRootView;
     private Activity mActivity;
     private Util mUtil;
+    private ListView mListView;
+    private RelativeLayout mProgressLayout;
 
     public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
     public static final int SHARE_ID = Menu.FIRST + 2;
@@ -117,7 +120,10 @@ public class PostFragment extends ListFragment {
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_post_list, container, false);
 
-        populateListView();
+        // Initialize listview and empty relative layout.
+        mListView = (ListView) mRootView.findViewById(android.R.id.list);
+        mProgressLayout = (RelativeLayout) mRootView.findViewById(android.R.id.empty);
+
         return mRootView;
     }
 
@@ -178,6 +184,16 @@ public class PostFragment extends ListFragment {
         return result;
     }
 
+    public void hideListView() {
+        mListView.setVisibility(View.GONE);
+        mProgressLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void showListView() {
+        mProgressLayout.setVisibility(View.GONE);
+        mListView.setVisibility(View.VISIBLE);
+    }
+
     /**
      * Populate the main list view with the database content.
      */
@@ -199,8 +215,7 @@ public class PostFragment extends ListFragment {
         SimpleCursorAdapter posts =
                 new SimpleCursorAdapter(mActivity, postItemLayout, postsCursor, keys, ids);
 
-        ListView listView = (ListView) mRootView.findViewById(android.R.id.list);
-        listView.setAdapter(posts);
+        mListView.setAdapter(posts);
 
         if (posts.isEmpty()) {
             mCallbacks.onEmptyList();

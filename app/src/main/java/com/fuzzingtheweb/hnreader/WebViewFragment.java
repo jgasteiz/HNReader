@@ -1,5 +1,6 @@
 package com.fuzzingtheweb.hnreader;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.RelativeLayout;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -41,6 +43,16 @@ public class WebViewFragment extends Fragment {
             webSettings.setJavaScriptEnabled(true);
             webView.setWebViewClient(new WebViewClient());
             webView.loadUrl(mUrl);
+
+            final RelativeLayout progressLayout = (RelativeLayout) rootView.findViewById(R.id.progress_layout);
+            webView.setWebViewClient(new WebViewClient() {
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    progressLayout.setVisibility(View.VISIBLE);
+                }
+                public void onPageFinished(WebView view, String url) {
+                    progressLayout.setVisibility(View.GONE);
+                }
+            });
         }
 
         return rootView;

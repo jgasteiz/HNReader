@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -57,15 +56,8 @@ public class Util {
 
     public void refreshPosts() {
 
+        mFragment.hideListView();
         mDbHelper.deleteAllPosts();
-
-        Callback callback = new Callback() {
-            @Override
-            public void call(Object arg) {
-                refreshList();
-            }
-        };
-        final Debouncer debouncer = new Debouncer(callback, 1000);
 
         Firebase topStoriesRef = new Firebase("https://hacker-news.firebaseio.com/v0/topstories");
         Query queryRef = topStoriesRef.limitToFirst(30);
@@ -104,9 +96,6 @@ public class Util {
 
                             updatePost(post);
 
-                            Log.v("UTIL", "calling the debouncer!");
-                            // TODO: make this debounced.
-//                            debouncer.call("populateListView");
                             mFragment.populateListView();
                         }
 
