@@ -8,8 +8,8 @@ android {
         applicationId "com.fuzzingtheweb.hnreader"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 12
-        versionName "12.0"
+        versionCode 13
+        versionName "13"
     }
     buildTypes {
         release {
