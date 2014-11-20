@@ -1,4 +1,4 @@
-package com.fuzzingtheweb.hnreader;
+package com.fuzzingtheweb.hnreader.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,6 +17,10 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.fuzzingtheweb.hnreader.R;
+import com.fuzzingtheweb.hnreader.models.Post;
+import com.fuzzingtheweb.hnreader.tasks.FetchPostsTask;
+
 import java.util.ArrayList;
 
 /**
@@ -30,6 +34,7 @@ public class PostFragment extends ListFragment {
 
     public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
     public static final int SHARE_ID = Menu.FIRST + 2;
+    public static final int VIEW_COMMENTS_ID = Menu.FIRST + 3;
     private static final String LOG_TAG = PostFragment.class.getSimpleName();
 
     /**
@@ -74,9 +79,8 @@ public class PostFragment extends ListFragment {
      * selections.
      */
     public interface Callbacks {
-        public void onItemSelected(String postUrl, MenuItem item);
+        public void onItemSelected(Post post, MenuItem item);
         public void onItemClick(String postUrl);
-        void onRefreshPosts();
     }
 
     /**
@@ -85,16 +89,11 @@ public class PostFragment extends ListFragment {
      */
     private static Callbacks sPostCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String postUrl, MenuItem item) {
+        public void onItemSelected(Post post, MenuItem item) {
         }
 
         @Override
         public void onItemClick(String postUrl) {
-
-        }
-
-        @Override
-        public void onRefreshPosts() {
 
         }
     };
@@ -114,6 +113,9 @@ public class PostFragment extends ListFragment {
         View rootView = inflater.inflate(R.layout.fragment_post_list, container, false);
         mListView = (ListView) rootView.findViewById(android.R.id.list);
         mProgressLayout = (RelativeLayout) rootView.findViewById(android.R.id.empty);
+
+        loadPosts();
+
         return rootView;
     }
 
@@ -144,17 +146,6 @@ public class PostFragment extends ListFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                mCallbacks.onRefreshPosts();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
         Post post = mPostList.get(position);
@@ -166,6 +157,7 @@ public class PostFragment extends ListFragment {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
         menu.add(0, SHARE_ID, 0, R.string.action_share);
+        menu.add(0, VIEW_COMMENTS_ID, 0, R.string.action_view_comments);
     }
 
     @Override
@@ -173,13 +165,15 @@ public class PostFragment extends ListFragment {
         boolean result = super.onContextItemSelected(item);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         Post post = mPostList.get(info.position);
-        mCallbacks.onItemSelected(post.getUrl(), item);
+        mCallbacks.onItemSelected(post, item);
         return result;
     }
 
-    public void hideListView() {
+    public void loadPosts() {
         mListView.setVisibility(View.GONE);
         mProgressLayout.setVisibility(View.VISIBLE);
+        FetchPostsTask fetchPostsTask = new FetchPostsTask(this);
+        fetchPostsTask.execute();
     }
 
     public void populateListView(final ArrayList<Post> postList) {

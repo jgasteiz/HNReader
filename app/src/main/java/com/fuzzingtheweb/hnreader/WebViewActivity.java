@@ -8,10 +8,11 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.fuzzingtheweb.hnreader.fragments.WebViewFragment;
+
 public class WebViewActivity extends ActionBarActivity {
 
     protected String mUrl;
-    private Util mUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +25,6 @@ public class WebViewActivity extends ActionBarActivity {
         Intent intent = getIntent();
         Uri blogUri = intent.getData();
         mUrl = blogUri.toString();
-
-        mUtil = new Util();
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
@@ -49,19 +48,19 @@ public class WebViewActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int itemId = item.getItemId();
-
+        Intent intent;
         switch (itemId) {
             case R.id.action_share:
-                Intent shareIntent = mUtil.getShareIntent(mUrl);
-                startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
+                intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, mUrl);
+                startActivity(Intent.createChooser(intent, getString(R.string.action_share_title)));
                 break;
             case R.id.open_browser:
-                Intent browserIntent = mUtil.getBrowserIntent(mUrl);
-                startActivity(browserIntent);
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(mUrl));
+                startActivity(intent);
                 break;
             case android.R.id.home:
                 this.finish();

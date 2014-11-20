@@ -1,48 +1,45 @@
-package com.fuzzingtheweb.hnreader;
+package com.fuzzingtheweb.hnreader.tasks;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.os.AsyncTask;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
+import com.fuzzingtheweb.hnreader.Constants;
+import com.fuzzingtheweb.hnreader.fragments.PostFragment;
+import com.fuzzingtheweb.hnreader.models.Post;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class Util {
+public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
 
-    private static PostFragment mFragment;
+    private static final String LOG_TAG = FetchPostsTask.class.getSimpleName();
+    private PostFragment mContext;
 
-    public Util() {
-
+    public FetchPostsTask(PostFragment context) {
+        mContext = context;
     }
 
-    public void setFragment(PostFragment fragment) {
-        mFragment = fragment;
-    }
+    @Override
+    protected Void doInBackground(Long... params) {
 
-    public void refreshPosts() {
-
-        mFragment.hideListView();
-
-        final ArrayList<Post> postList = new ArrayList<Post>();
-
-        Firebase topStoriesRef = new Firebase("https://hacker-news.firebaseio.com/v0/topstories");
+        Firebase topStoriesRef = new Firebase(Constants.KEY_TOP_STORIES_URL);
         Query queryRef = topStoriesRef.limitToFirst(30);
 
         queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 ArrayList children = (ArrayList) snapshot.getValue();
-                System.out.println("Data changed!");
+
+                final ArrayList<Post> postList = new ArrayList<Post>();
 
                 final int[] index = {1};
                 for(Iterator<Long> i = children.iterator(); i.hasNext(); ) {
-                    Firebase itemsRef = new Firebase("https://hacker-news.firebaseio.com/v0/item/" + i.next());
+                    Firebase itemsRef = new Firebase(Constants.KEY_ITEM_URL + i.next());
                     itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
@@ -61,7 +58,7 @@ public class Util {
                             postList.add(post);
                             index[0] = index[0] + 1;
 
-                            mFragment.populateListView(postList);
+                            mContext.populateListView(postList);
                         }
 
                         @Override
@@ -77,24 +74,7 @@ public class Util {
                 System.out.println("The read failed: " + firebaseError.getMessage());
             }
         });
-    }
 
-    /**
-     * Creates an action view intent for viewing a url in the browser.
-     */
-    public Intent getBrowserIntent(String url) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-        browserIntent.setData(Uri.parse(url));
-        return browserIntent;
-    }
-
-    /**
-     * Creates an action send intent for sharing the post url.
-     */
-    public Intent getShareIntent(String url) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
-        return shareIntent;
+        return null;
     }
 }

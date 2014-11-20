@@ -1,7 +1,7 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_list"
-    android:name="com.fuzzingtheweb.hnreader.PostFragment"
+    android:name="com.fuzzingtheweb.hnreader.fragments.PostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.fuzzingtheweb.hnreader.MainActivity"

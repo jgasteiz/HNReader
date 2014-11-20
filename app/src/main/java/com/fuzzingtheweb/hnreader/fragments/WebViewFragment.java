@@ -1,4 +1,4 @@
-package com.fuzzingtheweb.hnreader;
+package com.fuzzingtheweb.hnreader.fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
+
+import com.fuzzingtheweb.hnreader.R;
 
 /**
  * A placeholder fragment containing a simple view.

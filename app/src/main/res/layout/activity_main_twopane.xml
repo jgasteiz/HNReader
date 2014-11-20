@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/post_list"
-        android:name="com.fuzzingtheweb.hnreader.PostFragment"
+        android:name="com.fuzzingtheweb.hnreader.fragments.PostFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

@@ -1,4 +1,4 @@
-package com.fuzzingtheweb.hnreader;
+package com.fuzzingtheweb.hnreader.models;
 
 import java.util.ArrayList;
 

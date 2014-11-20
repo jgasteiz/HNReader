@@ -12,13 +12,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.fuzzingtheweb.hnreader.fragments.PostFragment;
+import com.fuzzingtheweb.hnreader.fragments.WebViewFragment;
+import com.fuzzingtheweb.hnreader.models.Post;
 
 
 public class MainActivity extends ActionBarActivity implements PostFragment.Callbacks {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
-    private Util mUtil;
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -31,13 +32,13 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
         super.onCreate(savedInstanceState);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_main);
-        mUtil = new Util();
+
+        if (isNetworkAvailable() == false) {
+            Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         if (findViewById(R.id.web_view) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
             mTwoPane = true;
 
             // In two-pane mode, list items should be given the
@@ -46,8 +47,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
                     .findFragmentById(R.id.post_list))
                     .setActivateOnItemClick(true);
         }
-
-        onRefreshPosts();
     }
 
     @Override
@@ -58,21 +57,41 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
     }
 
     @Override
-    public void onItemSelected(String postUrl, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                PostFragment fragment = ((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
+                fragment.loadPosts();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Post post, MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case PostFragment.SHARE_ID:
-                Intent shareIntent = mUtil.getShareIntent(postUrl);
-                startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share_title)));
+                intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, post.getUrl());
+                startActivity(Intent.createChooser(intent, getString(R.string.action_share_title)));
                 break;
             case PostFragment.OPEN_IN_BROWSER_ID:
-                Intent browserIntent = mUtil.getBrowserIntent(postUrl);
-                startActivity(browserIntent);
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(post.getUrl()));
+                startActivity(intent);
+                break;
+            case PostFragment.VIEW_COMMENTS_ID:
+                intent = new Intent(this, CommentsActivity.class);
+                intent.putExtra("id", post.getId());
+                startActivity(intent);
                 break;
         }
     }
 
     /**
-     * Callback method from {@link com.fuzzingtheweb.hnreader.PostFragment}
+     * Callback method from {@link com.fuzzingtheweb.hnreader.fragments.PostFragment}
      * indicating that the post with the given url was selected.
      */
     @Override
@@ -90,18 +109,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
             Intent intent = new Intent(this, WebViewActivity.class);
             intent.setData(Uri.parse(postUrl));
             startActivity(intent);
-        }
-    }
-
-    /**
-     * If the network is available, refresh the posts.
-     */
-    public void onRefreshPosts() {
-        if (isNetworkAvailable()) {
-            mUtil.setFragment((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
-            mUtil.refreshPosts();
-        } else {
-            Toast.makeText(this, "Network is unavailable", Toast.LENGTH_LONG).show();
         }
     }
 
