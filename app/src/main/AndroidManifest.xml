@@ -11,18 +11,26 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.fuzzingtheweb.hnreader.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".WebViewActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/title_activity_web_view" >
+            android:name="com.fuzzingtheweb.hnreader.WebViewActivity"
+            android:label="@string/title_activity_web_view"
+            android:parentActivityName="com.fuzzingtheweb.hnreader.MainActivity" >
+        </activity>
+        <activity
+            android:name="com.fuzzingtheweb.hnreader.CommentsActivity"
+            android:label="@string/title_activity_comments"
+            android:parentActivityName="com.fuzzingtheweb.hnreader.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fuzzingtheweb.hnreader.MainActivity" />
         </activity>
     </application>
 

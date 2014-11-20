@@ -7,24 +7,22 @@
     <string name="error_title">Ooops, sorry</string>
     <string name="error_message">There was an error getting data from the HN api.</string>
     <string name="no_items">There are no items to show</string>
-
     <string name="title_activity_main">HN Reader</string>
     <string name="title_activity_web_view">HN Post</string>
     <string name="action_share_title">How do you want to share this?</string>
     <string name="action_share">Share</string>
+    <string name="action_view_comments">View comments</string>
     <string name="action_refresh">Refresh</string>
     <string name="open_browser">Open in browser</string>
     <string name="menu_favorite">Mark as favourite</string>
-
     <string name="action_new_main">New Main</string>
     <string name="action_main">Main</string>
     <string name="webview_empty_message">Tap on a list item to view it here</string>
-
     <string name="drawer_all_items">All items</string>
     <string name="drawer_favorites">Favourites</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="menu_remove_favorite">Remove favorite</string>
+    <string name="title_activity_comments">Comments</string>
 
 </resources>
