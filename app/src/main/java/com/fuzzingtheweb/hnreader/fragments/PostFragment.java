@@ -1,6 +1,8 @@
 package com.fuzzingtheweb.hnreader.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateUtils;
@@ -17,6 +19,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.fuzzingtheweb.hnreader.CommentsActivity;
 import com.fuzzingtheweb.hnreader.R;
 import com.fuzzingtheweb.hnreader.models.Post;
 import com.fuzzingtheweb.hnreader.tasks.FetchPostsTask;
@@ -36,24 +39,6 @@ public class PostFragment extends ListFragment {
     public static final int SHARE_ID = Menu.FIRST + 2;
     public static final int VIEW_COMMENTS_ID = Menu.FIRST + 3;
     private static final String LOG_TAG = PostFragment.class.getSimpleName();
-
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static PostFragment newInstance(int sectionNumber) {
-        PostFragment fragment = new PostFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -79,7 +64,6 @@ public class PostFragment extends ListFragment {
      * selections.
      */
     public interface Callbacks {
-        public void onItemSelected(Post post, MenuItem item);
         public void onItemClick(String postUrl);
     }
 
@@ -88,9 +72,6 @@ public class PostFragment extends ListFragment {
      * nothing. Used only when this fragment is not attached to an activity.
      */
     private static Callbacks sPostCallbacks = new Callbacks() {
-        @Override
-        public void onItemSelected(Post post, MenuItem item) {
-        }
 
         @Override
         public void onItemClick(String postUrl) {
@@ -163,9 +144,27 @@ public class PostFragment extends ListFragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         boolean result = super.onContextItemSelected(item);
+        Intent intent;
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         Post post = mPostList.get(info.position);
-        mCallbacks.onItemSelected(post, item);
+        switch (item.getItemId()) {
+            case PostFragment.SHARE_ID:
+                intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, post.getUrl());
+                startActivity(Intent.createChooser(intent, getString(R.string.action_share_title)));
+                break;
+            case PostFragment.OPEN_IN_BROWSER_ID:
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(post.getUrl()));
+                startActivity(intent);
+                break;
+            case PostFragment.VIEW_COMMENTS_ID:
+                intent = new Intent(getActivity(), CommentsActivity.class);
+                intent.putExtra("id", post.getId());
+                startActivity(intent);
+                break;
+        }
         return result;
     }
 

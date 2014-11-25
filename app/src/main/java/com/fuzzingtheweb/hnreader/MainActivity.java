@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.firebase.client.Firebase;
 import com.fuzzingtheweb.hnreader.fragments.PostFragment;
 import com.fuzzingtheweb.hnreader.fragments.WebViewFragment;
-import com.fuzzingtheweb.hnreader.models.Post;
 
 
 public class MainActivity extends ActionBarActivity implements PostFragment.Callbacks {
@@ -40,7 +39,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
 
         if (findViewById(R.id.web_view) != null) {
             mTwoPane = true;
-
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((PostFragment) getSupportFragmentManager()
@@ -58,36 +56,11 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                PostFragment fragment = ((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
-                fragment.loadPosts();
-                break;
+        if (item.getItemId() == R.id.action_refresh) {
+            PostFragment fragment = ((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
+            fragment.loadPosts();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemSelected(Post post, MenuItem item) {
-        Intent intent;
-        switch (item.getItemId()) {
-            case PostFragment.SHARE_ID:
-                intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, post.getUrl());
-                startActivity(Intent.createChooser(intent, getString(R.string.action_share_title)));
-                break;
-            case PostFragment.OPEN_IN_BROWSER_ID:
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(post.getUrl()));
-                startActivity(intent);
-                break;
-            case PostFragment.VIEW_COMMENTS_ID:
-                intent = new Intent(this, CommentsActivity.class);
-                intent.putExtra("id", post.getId());
-                startActivity(intent);
-                break;
-        }
     }
 
     /**
