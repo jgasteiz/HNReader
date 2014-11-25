@@ -12,6 +12,7 @@ public class Post {
     private String title;
     private String type;
     private String url;
+    private String prettyUrl;
 
     public Post(Long id, int index) {
         this.id = id;
@@ -84,6 +85,14 @@ public class Post {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getPrettyUrl() {
+        return prettyUrl;
+    }
+
+    public void setPrettyUrl(String prettyUrl) {
+        this.prettyUrl = prettyUrl;
     }
 
     public void setUrl(String url) {

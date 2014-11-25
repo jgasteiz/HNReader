@@ -196,7 +196,7 @@ public class PostFragment extends ListFragment {
                 ((TextView) view.findViewById(R.id.item_title))
                         .setText(post.getTitle());
                 ((TextView) view.findViewById(R.id.item_url))
-                        .setText(post.getUrl());
+                        .setText(post.getPrettyUrl());
 
                 ((TextView) view.findViewById(R.id.item_author))
                         .setText("by " + post.getBy());

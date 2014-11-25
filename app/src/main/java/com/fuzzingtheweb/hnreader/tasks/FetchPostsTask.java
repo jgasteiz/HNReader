@@ -19,6 +19,7 @@ public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
 
     private static final String LOG_TAG = FetchPostsTask.class.getSimpleName();
     private PostFragment mContext;
+    private static final String YCOMBINATOR_ITEM_URL = "https://news.ycombinator.com/item?id=";
 
     public FetchPostsTask(PostFragment context) {
         mContext = context;
@@ -53,7 +54,19 @@ public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
                             post.setTime((Long) item.get(Constants.KEY_TIME));
                             post.setTitle((String) item.get(Constants.KEY_TITLE));
                             post.setType((String) item.get(Constants.KEY_TYPE));
-                            post.setUrl((String) item.get(Constants.KEY_URL));
+
+                            String url = (String) item.get(Constants.KEY_URL);
+                            if (url.isEmpty()) {
+                                url = YCOMBINATOR_ITEM_URL + post.getId();
+                            }
+                            post.setUrl(url);
+
+                            String prettyUrl = url;
+                            String[] splitUrl = prettyUrl.split("/");
+                            if (splitUrl.length > 2) {
+                                prettyUrl = splitUrl[2];
+                            }
+                            post.setPrettyUrl(prettyUrl);
 
                             postList.add(post);
                             index[0] = index[0] + 1;
