@@ -205,25 +205,27 @@ public class PostFragment extends ListFragment {
                 ((TextView) view.findViewById(R.id.item_url))
                         .setText(post.getPrettyUrl());
 
-                ((TextView) view.findViewById(R.id.item_author))
-                        .setText("by " + post.getBy());
-                ((TextView) view.findViewById(R.id.item_score))
-                        .setText(post.getScore() + " points");
+                String postDetails = "";
 
                 // Calculate postedAgo
                 CharSequence postedAgo = DateUtils.getRelativeTimeSpanString(
                         post.getTime() * 1000,
                         System.currentTimeMillis(),
                         DateUtils.SECOND_IN_MILLIS);
-                ((TextView) view.findViewById(R.id.item_posted_ago))
-                        .setText(postedAgo);
 
+                // Get num comments
                 int numComments = 0;
                 if (post.getKids() != null) {
                     numComments = post.getKids().size();
                 }
-                ((TextView) view.findViewById(R.id.item_num_comments))
-                        .setText(numComments + " comments");
+
+                postDetails = postDetails + "by " + post.getBy();
+                postDetails = postDetails + "  " + post.getScore() + " points";
+                postDetails = postDetails + "  " + postedAgo;
+                postDetails = postDetails + "  " + numComments + " comments";
+
+                ((TextView) view.findViewById(R.id.post_details))
+                        .setText(postDetails);
 
                 return view;
             }

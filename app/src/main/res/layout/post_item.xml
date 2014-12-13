@@ -1,101 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/PostList.ListItem">
+
+    <TextView
+        android:id="@+id/item_index"
+        style="@style/PostList.ItemIndex"
+        android:text="@string/dummy_index"/>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:layout_height="wrap_content">
+        style="@style/PostList.ListItemContent"
+        >
 
         <TextView
-            android:id="@+id/item_index"
-            android:textSize="16sp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="#757575"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1"/>
+            style="@style/PostList.ItemTitle"
+            android:id="@+id/item_title"
+            android:text="@string/dummy_title"
+            />
 
-        <LinearLayout
-            android:paddingLeft="10dp"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_height="wrap_content">
+        <TextView
+            style="@style/PostList.ItemUrl"
+            android:id="@+id/item_url"
+            android:text="@string/dummy_url" />
 
-            <TextView
-                android:id="@+id/item_title"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:fontFamily="sans-serif"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="This is some hacker news cool title" />
-
-            <TextView
-                android:id="@+id/item_url"
-                android:textSize="14sp"
-                android:paddingBottom="2dp"
-                android:paddingTop="2dp"
-                android:textColor="#546E7A"
-                android:layout_width="match_parent"
-                android:fontFamily="sans-serif"
-                android:layout_height="match_parent"
-                android:text="journal.stuffwithstuff.com" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:paddingBottom="2dp"
-                android:paddingTop="2dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/item_score"
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="32 points"/>
-
-                <TextView
-                    android:id="@+id/item_author"
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="8sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="by someone"/>
-
-                <TextView
-                    android:id="@+id/item_posted_ago"
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="8sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="8 hours ago"/>
-
-                <TextView
-                    android:id="@+id/item_num_comments"
-                    android:textSize="12sp"
-                    android:textColor="#78909C"
-                    android:fontFamily="sans-serif-light"
-                    android:layout_marginStart="8sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="70 comments"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <TextView
+            style="@style/PostList.ItemDetails"
+            android:id="@+id/post_details"
+            android:text="@string/dummy_details"
+            />
 
     </LinearLayout>
 

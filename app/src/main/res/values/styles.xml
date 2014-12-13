@@ -4,4 +4,57 @@
         <item name="colorPrimaryDark">#E65100</item>
         <item name="colorAccent">#26C6DA</item>
     </style>
+
+    <!-- Post list styles -->
+    <style name="PostList"/>
+
+    <style name="PostList.ListItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="PostList.ItemIndex">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">#757575</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="PostList.ListItemContent">
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="PostList.ItemTitle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#000000</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="PostList.ItemDetail">
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="PostList.ItemUrl" parent="PostList.ItemDetail">
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:textColor">#546E7A</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="PostList.ItemDetails" parent="PostList.ItemDetail">
+        <item name="android:textColor">#78909C</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
 </resources>

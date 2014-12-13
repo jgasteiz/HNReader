@@ -24,5 +24,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="menu_remove_favorite">Remove favorite</string>
     <string name="title_activity_comments">Comments</string>
+    <string name="dummy_index">1</string>
+    <string name="dummy_title">This is some hacker news cool title</string>
+    <string name="dummy_url">journal.stuffwithstuff.com</string>
+    <string name="dummy_details">32 points by someone 8 hours ago 70 comments</string>
 
 </resources>
