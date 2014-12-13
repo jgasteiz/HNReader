@@ -8,7 +8,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.fuzzingtheweb.hnreader.Constants;
-import com.fuzzingtheweb.hnreader.fragments.PostFragment;
+import com.fuzzingtheweb.hnreader.interfaces.OnPostsFetched;
 import com.fuzzingtheweb.hnreader.models.Post;
 
 import java.util.ArrayList;
@@ -18,11 +18,11 @@ import java.util.Iterator;
 public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
 
     private static final String LOG_TAG = FetchPostsTask.class.getSimpleName();
-    private PostFragment mContext;
+    private OnPostsFetched mListener;
     private static final String YCOMBINATOR_ITEM_URL = "https://news.ycombinator.com/item?id=";
 
-    public FetchPostsTask(PostFragment context) {
-        mContext = context;
+    public FetchPostsTask(OnPostsFetched listener) {
+        mListener = listener;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
                             postList.add(post);
                             index[0] = index[0] + 1;
 
-                            mContext.populateListView(postList);
+                            mListener.onPostsFetched(postList);
                         }
 
                         @Override

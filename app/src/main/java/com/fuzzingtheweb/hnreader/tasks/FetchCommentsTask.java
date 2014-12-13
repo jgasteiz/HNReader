@@ -6,9 +6,8 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.fuzzingtheweb.hnreader.fragments.CommentListFragment;
-import com.fuzzingtheweb.hnreader.CommentsActivity;
 import com.fuzzingtheweb.hnreader.Constants;
+import com.fuzzingtheweb.hnreader.interfaces.OnCommentsFetched;
 import com.fuzzingtheweb.hnreader.models.Comment;
 
 import java.util.ArrayList;
@@ -19,11 +18,11 @@ public class FetchCommentsTask extends AsyncTask<Long, Void, Void> {
 
     private static final String LOG_TAG = FetchCommentsTask.class.getSimpleName();
     private long mPostId;
-    private CommentListFragment mContext;
+    private OnCommentsFetched mListener;
 
-    public FetchCommentsTask(long postId, CommentListFragment context) {
+    public FetchCommentsTask(OnCommentsFetched listener, long postId) {
+        mListener = listener;
         mPostId = postId;
-        mContext = context;
     }
 
     @Override
@@ -38,8 +37,7 @@ public class FetchCommentsTask extends AsyncTask<Long, Void, Void> {
 
                 // Close the parent activity if there are no comments to show.
                 if (post.containsKey(Constants.KEY_KIDS) == false) {
-                    CommentsActivity activity = (CommentsActivity) mContext.getActivity();
-                    activity.finishActivityNoComments();
+                    mListener.onNoComments();
                     return;
                 }
 
@@ -68,7 +66,7 @@ public class FetchCommentsTask extends AsyncTask<Long, Void, Void> {
                             commentList.add(comment);
                             index[0] = index[0] + 1;
 
-                            mContext.populateListView(commentList);
+                            mListener.onCommentsFetched(commentList);
                         }
 
                         @Override

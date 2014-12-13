@@ -10,12 +10,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.fuzzingtheweb.hnreader.CommentsActivity;
 import com.fuzzingtheweb.hnreader.Constants;
 import com.fuzzingtheweb.hnreader.R;
+import com.fuzzingtheweb.hnreader.interfaces.OnCommentsFetched;
 import com.fuzzingtheweb.hnreader.models.Comment;
 import com.fuzzingtheweb.hnreader.tasks.FetchCommentsTask;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class CommentListFragment extends Fragment {
 
@@ -42,13 +44,24 @@ public class CommentListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_comment_list, container, false);
 
         mListView = (ListView) rootView.findViewById(android.R.id.list);
-        FetchCommentsTask fetchCommentsTask = new FetchCommentsTask(mPostId, this);
+        OnCommentsFetched onCommentsFetched = new OnCommentsFetched() {
+            @Override
+            public void onCommentsFetched(List<Comment> commentList) {
+                populateListView(commentList);
+            }
+
+            @Override
+            public void onNoComments() {
+                ((CommentsActivity) getActivity()).finishActivityNoComments();
+            }
+        };
+        FetchCommentsTask fetchCommentsTask = new FetchCommentsTask(onCommentsFetched, mPostId);
         fetchCommentsTask.execute();
 
         return rootView;
     }
 
-    public void populateListView(final ArrayList<Comment> commentList) {
+    public void populateListView(final List<Comment> commentList) {
 
         ArrayAdapter<Comment> commentListAdapter = new ArrayAdapter<Comment> (
                 getActivity(),

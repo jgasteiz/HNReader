@@ -21,10 +21,12 @@ import android.widget.TextView;
 
 import com.fuzzingtheweb.hnreader.CommentsActivity;
 import com.fuzzingtheweb.hnreader.R;
+import com.fuzzingtheweb.hnreader.interfaces.OnPostsFetched;
 import com.fuzzingtheweb.hnreader.models.Post;
 import com.fuzzingtheweb.hnreader.tasks.FetchPostsTask;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -171,13 +173,19 @@ public class PostFragment extends ListFragment {
     public void loadPosts() {
         mListView.setVisibility(View.GONE);
         mProgressLayout.setVisibility(View.VISIBLE);
-        FetchPostsTask fetchPostsTask = new FetchPostsTask(this);
+        OnPostsFetched onPostsFetched = new OnPostsFetched() {
+            @Override
+            public void onPostsFetched(List<Post> postList) {
+                populateListView(postList);
+            }
+        };
+        FetchPostsTask fetchPostsTask = new FetchPostsTask(onPostsFetched);
         fetchPostsTask.execute();
     }
 
-    public void populateListView(final ArrayList<Post> postList) {
+    public void populateListView(final List<Post> postList) {
 
-        mPostList = postList;
+        mPostList = (ArrayList<Post>) postList;
 
         ArrayAdapter<Post> postListAdapter = new ArrayAdapter<Post> (
                 getActivity(),
