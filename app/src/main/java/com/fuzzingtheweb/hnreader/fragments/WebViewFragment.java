@@ -41,9 +41,7 @@ public class WebViewFragment extends Fragment {
 
         if (mUrl != null) {
             WebView webView = (WebView) rootView.findViewById(R.id.web_view);
-            WebSettings webSettings = webView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            webView.setWebViewClient(new WebViewClient());
+            webView = setWebViewSettings(webView);
             webView.loadUrl(mUrl);
 
             final RelativeLayout progressLayout = (RelativeLayout) rootView.findViewById(R.id.progress_layout);
@@ -60,4 +58,14 @@ public class WebViewFragment extends Fragment {
         return rootView;
     }
 
+    public WebView setWebViewSettings(WebView webView) {
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        webView.setWebViewClient(new WebViewClient());
+        return webView;
+    }
 }
