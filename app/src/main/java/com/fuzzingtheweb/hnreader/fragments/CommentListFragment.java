@@ -1,7 +1,8 @@
 package com.fuzzingtheweb.hnreader.fragments;
 
-import android.app.Fragment;
+import android.app.ListFragment;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fuzzingtheweb.hnreader.CommentsActivity;
 import com.fuzzingtheweb.hnreader.Constants;
@@ -17,12 +19,14 @@ import com.fuzzingtheweb.hnreader.interfaces.OnCommentsFetched;
 import com.fuzzingtheweb.hnreader.models.Comment;
 import com.fuzzingtheweb.hnreader.tasks.FetchCommentsTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CommentListFragment extends Fragment {
+public class CommentListFragment extends ListFragment {
 
     private long mPostId;
     private ListView mListView;
+    private ArrayList<Comment> mCommentList;
     private static final String LOG_TAG = CommentListFragment.class.getSimpleName();
 
     public CommentListFragment() {
@@ -35,6 +39,30 @@ public class CommentListFragment extends Fragment {
 
         if (getArguments().containsKey(Constants.KEY_ID)) {
             mPostId = getArguments().getLong(Constants.KEY_ID);
+        }
+    }
+
+    @Override
+    public void onListItemClick(ListView listView, View view, final int position, long id) {
+        super.onListItemClick(listView, view, position, id);
+        Comment comment = mCommentList.get(position);
+
+        // if there are kids, fetch them
+        if (comment.getKids() != null && comment.getKids().size() > 0) {
+            OnCommentsFetched onCommentsFetched = new OnCommentsFetched() {
+                @Override
+                public void onCommentsFetched(List<Comment> commentList) {
+                    addChildrenComments(commentList, position);
+                }
+
+                @Override
+                public void onNoComments() {
+                    Toast.makeText(getActivity(), "No children comments here", Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            FetchCommentsTask fetchCommentsTask = new FetchCommentsTask(onCommentsFetched, comment.getId());
+            fetchCommentsTask.execute();
         }
     }
 
@@ -63,6 +91,8 @@ public class CommentListFragment extends Fragment {
 
     public void populateListView(final List<Comment> commentList) {
 
+        mCommentList = (ArrayList<Comment>) commentList;
+
         ArrayAdapter<Comment> commentListAdapter = new ArrayAdapter<Comment> (
                 getActivity(),
                 R.layout.comment_item,
@@ -79,7 +109,15 @@ public class CommentListFragment extends Fragment {
                 ((TextView) view.findViewById(R.id.item_by))
                         .setText(comment.getBy());
                 ((TextView) view.findViewById(R.id.item_text))
-                        .setText(comment.getText());
+                        .setText(Html.fromHtml(comment.getText()));
+
+                if (comment.getKids() != null && comment.getKids().size() > 0) {
+                    TextView itemChildrenTextView = ((TextView) view.findViewById(R.id.item_children));
+                    String childrenText = comment.getKids().size() + " replies to this post, tap here to load them";
+
+                    itemChildrenTextView.setText(Html.fromHtml(childrenText));
+                    itemChildrenTextView.setVisibility(View.VISIBLE);
+                }
 
                 return view;
             }
@@ -90,6 +128,12 @@ public class CommentListFragment extends Fragment {
         } catch (NullPointerException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
+    }
 
+    public void addChildrenComments(final List<Comment> commentList, int parentPosition) {
+        Toast.makeText(
+                getActivity(),
+                "Fetched " + commentList.size() + " comments and inserting in " + parentPosition + " position.",
+                Toast.LENGTH_SHORT).show();
     }
 }

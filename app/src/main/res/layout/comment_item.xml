@@ -47,6 +47,18 @@
                 android:layout_height="match_parent"
                 android:text="Text goes here" />
 
+            <TextView
+                android:id="@+id/item_children"
+                android:textSize="16sp"
+                android:paddingBottom="2dp"
+                android:paddingTop="2dp"
+                android:textColor="#a89da8"
+                android:layout_width="match_parent"
+                android:fontFamily="sans-serif"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:text="12 replies to this post, tap here to load them" />
+
         </LinearLayout>
 
     </LinearLayout>

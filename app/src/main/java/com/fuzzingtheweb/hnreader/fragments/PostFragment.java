@@ -2,18 +2,13 @@ package com.fuzzingtheweb.hnreader.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -37,9 +32,6 @@ public class PostFragment extends ListFragment {
     private RelativeLayout mProgressLayout;
     private ArrayList<Post> mPostList;
 
-    public static final int OPEN_IN_BROWSER_ID = Menu.FIRST + 1;
-    public static final int SHARE_ID = Menu.FIRST + 2;
-    public static final int VIEW_COMMENTS_ID = Menu.FIRST + 3;
     private static final String LOG_TAG = PostFragment.class.getSimpleName();
 
     /**
@@ -135,41 +127,6 @@ public class PostFragment extends ListFragment {
         mCallbacks.onItemClick(post.getUrl());
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, OPEN_IN_BROWSER_ID, 0, R.string.open_browser);
-        menu.add(0, SHARE_ID, 0, R.string.action_share);
-        menu.add(0, VIEW_COMMENTS_ID, 0, R.string.action_view_comments);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        boolean result = super.onContextItemSelected(item);
-        Intent intent;
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Post post = mPostList.get(info.position);
-        switch (item.getItemId()) {
-            case PostFragment.SHARE_ID:
-                intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_TEXT, post.getUrl());
-                startActivity(Intent.createChooser(intent, getString(R.string.action_share_title)));
-                break;
-            case PostFragment.OPEN_IN_BROWSER_ID:
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(post.getUrl()));
-                startActivity(intent);
-                break;
-            case PostFragment.VIEW_COMMENTS_ID:
-                intent = new Intent(getActivity(), CommentsActivity.class);
-                intent.putExtra("id", post.getId());
-                startActivity(intent);
-                break;
-        }
-        return result;
-    }
-
     public void loadPosts() {
         mListView.setVisibility(View.GONE);
         mProgressLayout.setVisibility(View.VISIBLE);
@@ -193,10 +150,10 @@ public class PostFragment extends ListFragment {
                 R.id.item_index,
                 postList)
         {
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(final int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
 
-                Post post = postList.get(position);
+                final Post post = postList.get(position);
 
                 ((TextView) view.findViewById(R.id.item_index))
                         .setText(Integer.toString(post.getIndex()));
@@ -226,6 +183,15 @@ public class PostFragment extends ListFragment {
 
                 ((TextView) view.findViewById(R.id.post_details))
                         .setText(postDetails);
+
+                view.findViewById(R.id.view_comments).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), CommentsActivity.class);
+                        intent.putExtra("id", post.getId());
+                        startActivity(intent);
+                    }
+                });
 
                 return view;
             }

@@ -3,20 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/PostList.ListItem">
 
-    <TextView
-        android:id="@+id/item_index"
-        style="@style/PostList.ItemIndex"
-        android:text="@string/dummy_index"/>
-
     <LinearLayout
+        android:id="@+id/view_post"
         style="@style/PostList.ListItemContent"
         >
+        <LinearLayout
+            style="@style/PostList.ListItemTitle"
+            >
 
-        <TextView
-            style="@style/PostList.ItemTitle"
-            android:id="@+id/item_title"
-            android:text="@string/dummy_title"
-            />
+            <TextView
+                android:id="@+id/item_index"
+                style="@style/PostList.ItemIndex"
+                android:text="@string/dummy_index"/>
+
+            <TextView
+                style="@style/PostList.ItemTitle"
+                android:id="@+id/item_title"
+                android:text="@string/dummy_title"
+                />
+
+        </LinearLayout>
 
         <TextView
             style="@style/PostList.ItemUrl"
@@ -28,6 +34,18 @@
             android:id="@+id/post_details"
             android:text="@string/dummy_details"
             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_comments"
+        style="@style/PostList.ListItemComments"
+        >
+
+        <ImageView
+            android:src="@drawable/ic_comments"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="comments" />
 
     </LinearLayout>
 
