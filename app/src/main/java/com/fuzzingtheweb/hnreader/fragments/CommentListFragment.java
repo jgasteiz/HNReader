@@ -26,7 +26,10 @@ public class CommentListFragment extends ListFragment {
 
     private long mPostId;
     private ListView mListView;
+
     private ArrayList<Comment> mCommentList;
+    private ArrayAdapter<Comment> mCommentListAdapter;
+
     private static final String LOG_TAG = CommentListFragment.class.getSimpleName();
 
     public CommentListFragment() {
@@ -93,16 +96,16 @@ public class CommentListFragment extends ListFragment {
 
         mCommentList = (ArrayList<Comment>) commentList;
 
-        ArrayAdapter<Comment> commentListAdapter = new ArrayAdapter<Comment> (
+        mCommentListAdapter = new ArrayAdapter<Comment> (
                 getActivity(),
                 R.layout.comment_item,
                 R.id.item_index,
-                commentList)
+                mCommentList)
         {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
 
-                Comment comment = commentList.get(position);
+                Comment comment = mCommentList.get(position);
 
                 ((TextView) view.findViewById(R.id.item_index))
                         .setText(Integer.toString(comment.getIndex()));
@@ -124,16 +127,16 @@ public class CommentListFragment extends ListFragment {
         };
 
         try {
-            mListView.setAdapter(commentListAdapter);
+            mListView.setAdapter(mCommentListAdapter);
         } catch (NullPointerException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
     }
 
     public void addChildrenComments(final List<Comment> commentList, int parentPosition) {
-        Toast.makeText(
-                getActivity(),
-                "Fetched " + commentList.size() + " comments and inserting in " + parentPosition + " position.",
-                Toast.LENGTH_SHORT).show();
+
+        mCommentList.addAll(parentPosition, commentList);
+
+        mCommentListAdapter.notifyDataSetChanged();
     }
 }

@@ -13,7 +13,6 @@ import com.fuzzingtheweb.hnreader.models.Post;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
 
@@ -39,8 +38,8 @@ public class FetchPostsTask extends AsyncTask<Long, Void, Void> {
                 final ArrayList<Post> postList = new ArrayList<Post>();
 
                 final int[] index = {1};
-                for(Iterator<Long> i = children.iterator(); i.hasNext(); ) {
-                    Firebase itemsRef = new Firebase(Constants.KEY_ITEM_URL + i.next());
+                for (Long aChildren : (Iterable<Long>) children) {
+                    Firebase itemsRef = new Firebase(Constants.KEY_ITEM_URL + aChildren);
                     itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
