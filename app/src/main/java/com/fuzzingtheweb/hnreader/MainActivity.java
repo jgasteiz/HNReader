@@ -7,8 +7,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -45,22 +43,6 @@ public class MainActivity extends ActionBarActivity implements PostFragment.Call
                     .findFragmentById(R.id.post_list))
                     .setActivateOnItemClick(true);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        getMenuInflater().inflate(R.menu.post_fragment, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
-            PostFragment fragment = ((PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_list));
-            fragment.loadPosts();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
