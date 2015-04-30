@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,8 @@ public class PostFragment extends ListFragment {
     private ListView mListView;
     private RelativeLayout mProgressLayout;
     private ArrayList<Post> mPostList;
+
+    private SwipeRefreshLayout mSwipeLayout;
 
     private static final String LOG_TAG = PostFragment.class.getSimpleName();
 
@@ -83,6 +86,18 @@ public class PostFragment extends ListFragment {
         mListView = (ListView) rootView.findViewById(android.R.id.list);
         mProgressLayout = (RelativeLayout) rootView.findViewById(android.R.id.empty);
 
+        mSwipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadPosts();
+            }
+        });
+        mSwipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
         loadPosts();
 
         return rootView;
@@ -122,6 +137,7 @@ public class PostFragment extends ListFragment {
             @Override
             public void onPostsFetched(List<Post> postList) {
                 populateListView(postList);
+                mSwipeLayout.setRefreshing(false);
             }
         };
         FetchPostsTask fetchPostsTask = new FetchPostsTask(onPostsFetched);
